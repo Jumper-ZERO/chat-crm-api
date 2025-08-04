@@ -1,0 +1,8 @@
+required: El campo {attr} es obligatorio.
+invalid:
+  default: El campo {attr} es inválido.
+  date: El campo {attr} debe ser una fecha válida.
+  boolean: El campo {attr} debe ser un booleano.
+min: El campo {attr} debe tener al menos {min} caracteres
+username: El username debe usar solo minúsculas, números y guiones medios (slug-friendly)
+role: El rol debe ser uno de los valores permitidos {values}
