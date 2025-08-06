@@ -7,9 +7,6 @@
       "path": "/bin/bash"
     }
   },
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
   "files.exclude": {
     "**/node_modules": true,
     "**/dist": true,
@@ -19,14 +16,10 @@
     "**/node_modules": true,
     "**/dist": true
   },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always",
+    "source.fixAll.eslint": "always"
+  },
   "typescript.suggest.autoImports": true,
-  "extensions.recommendations": [
-    "ms-vscode.vscode-typescript-next",
-    "bradlc.vscode-tailwindcss",
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "ms-vscode.vscode-docker",
-    "formulahendry.auto-rename-tag"
-  ],
-  "editor.inlineSuggest.enabled": false // IA complementations
+  // "editor.inlineSuggest.enabled": false // IA complementations
 }
