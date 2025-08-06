@@ -1,6 +1,10 @@
-import { Controller, Post, Body, Res } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import type { Response } from 'express';
+
+import { AuthService } from './auth.service';
+import type { AuthRequest } from './auth.types';
+
 
 @Controller('auth')
 export class AuthController {
@@ -18,5 +22,11 @@ export class AuthController {
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
     return this.authService.logout(res)
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  getProfile(@Req() req: AuthRequest) {
+    return req.user;
   }
 }

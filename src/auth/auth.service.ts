@@ -4,6 +4,10 @@ import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { UsersService } from 'src/modules/users/users.service';
 
+import { User } from '../modules/users/entities/user.entity';
+
+import { JwtPayload } from './auth.types';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -16,14 +20,14 @@ export class AuthService {
     pass: string,
     res: Response
   ): Promise<{ access_token: string }> {
-    const user = await this.usersService.findByUsername(username)
+    const user: User | null = await this.usersService.findByUsername(username)
 
     const isValid = user && bcrypt.compareSync(pass, user.password)
     if (!isValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user?.id, username: user?.username }
+    const payload: JwtPayload = { sub: user.id, username: user.username, role: user.role }
     const access_token = await this.jwtService.signAsync(payload)
 
     res.cookie('access_token', access_token, {
