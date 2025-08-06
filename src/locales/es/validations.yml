@@ -1,4 +1,5 @@
 required: El campo {attr} es obligatorio.
+unique: El valor de {field} ya existe.
 invalid:
   default: El campo {attr} es inválido.
   date: El campo {attr} debe ser una fecha válida.

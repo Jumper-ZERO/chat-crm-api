@@ -10,9 +10,14 @@ import { LogsModule } from './modules/logs/logs.module';
 import { AuthModule } from './auth/auth.module';
 import { AcceptLanguageResolver, I18nModule, I18nYamlLoader, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
+import { IsUniqueConstraint } from './utils/validators';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
     I18nModule.forRoot({
       fallbackLanguage: 'es',
       loader: I18nYamlLoader,
@@ -57,6 +62,6 @@ import * as path from 'path';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, IsUniqueConstraint],
 })
 export class AppModule { }

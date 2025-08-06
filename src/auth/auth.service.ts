@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Response } from 'express';
 import { UsersService } from 'src/modules/users/users.service';
 
 @Injectable()
@@ -10,19 +11,33 @@ export class AuthService {
     private jwtService: JwtService,
   ) { }
 
-  async validateUser(username: string, password: string) {
-    const user = await this.usersService.findByUsername(username);
-    if (user && await bcrypt.compare(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
+  async signIn(
+    username: string,
+    pass: string,
+    res: Response
+  ): Promise<{ access_token: string }> {
+    const user = await this.usersService.findByUsername(username)
+
+    const isValid = user && bcrypt.compareSync(pass, user.password)
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    return null;
+
+    const payload = { sub: user?.id, username: user?.username }
+    const access_token = await this.jwtService.signAsync(payload)
+
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      sameSite: 'lax', // 'none' in https
+      secure: process.env.COOKIE_SECURE === '1',
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+
+    return { access_token }
   }
 
-  async login(user: any) {
-    const payload = { sub: user.id, username: user.username, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+  logout(res: Response) {
+    res.clearCookie('access_token');
+    return { message: 'Logout success' }
   }
 }
