@@ -1,22 +1,29 @@
+import * as path from 'path';
+
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import {
+  AcceptLanguageResolver,
+  I18nModule,
+  I18nYamlLoader,
+  QueryResolver,
+} from 'nestjs-i18n';
+import { LoggerModule } from 'nestjs-pino';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './modules/users/users.module';
-import { LoggerModule } from 'nestjs-pino';
-import { ClientsModule } from './modules/clients/clients.module';
-import { ChatsModule } from './modules/chats/chats.module';
-import { LogsModule } from './modules/logs/logs.module';
 import { AuthModule } from './auth/auth.module';
-import { AcceptLanguageResolver, I18nModule, I18nYamlLoader, QueryResolver } from 'nestjs-i18n';
-import * as path from 'path';
+import { ChatsModule } from './modules/chats/chats.module';
+import { ClientsModule } from './modules/clients/clients.module';
+import { LogsModule } from './modules/logs/logs.module';
+import { UsersModule } from './modules/users/users.module';
 import { IsUniqueConstraint } from './utils/validators';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     I18nModule.forRoot({
       fallbackLanguage: 'es',
@@ -64,4 +71,5 @@ import { ConfigModule } from '@nestjs/config';
   controllers: [AppController],
   providers: [AppService, IsUniqueConstraint],
 })
+
 export class AppModule { }

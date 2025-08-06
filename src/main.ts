@@ -1,9 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { Logger } from 'nestjs-pino';
-import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
 import { useContainer } from 'class-validator';
 import cookieParser from 'cookie-parser';
+import { I18nValidationExceptionFilter, I18nValidationPipe } from 'nestjs-i18n';
+import { Logger } from 'nestjs-pino';
+
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -20,15 +21,15 @@ async function bootstrap() {
   );
 
   // Validate decorators (isUnique)
-  useContainer(app.select(AppModule), { fallbackOnErrors: true })
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   // Authentication
-  app.use(cookieParser())
+  app.use(cookieParser());
   app.enableCors({
     origin: process.env.CORS_ORIGIN,
-    credentials: true
-  })
+    credentials: true,
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap();
