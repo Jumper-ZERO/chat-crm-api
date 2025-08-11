@@ -6,7 +6,6 @@ import { UsersModule } from './modules/users/users.module';
 import { LoggerModule } from 'nestjs-pino';
 import { ClientsModule } from './modules/clients/clients.module';
 import { ChatsModule } from './modules/chats/chats.module';
-import { LogsModule } from './modules/logs/logs.module';
 import { AuthModule } from './auth/auth.module';
 import { AcceptLanguageResolver, I18nModule, I18nYamlLoader, QueryResolver } from 'nestjs-i18n';
 import * as path from 'path';
@@ -53,7 +52,6 @@ import * as path from 'path';
     UsersModule,
     ClientsModule,
     ChatsModule,
-    LogsModule,
     AuthModule,
   ],
   controllers: [AppController],
