@@ -1,3 +1,4 @@
+import { isUnique } from '@utils/validators';
 import { Type } from "class-transformer";
 import { IsBoolean, IsDate, IsEnum, IsOptional, IsString, Matches, MinLength } from "class-validator";
 import { i18nValidationMessage as t } from "nestjs-i18n";
@@ -9,6 +10,7 @@ export class CreateUserDto {
   @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
     message: t('validations.username'),
   })
+  @isUnique({ tableName: 'users', column: 'username' })
   username: string;
 
   @IsString()
