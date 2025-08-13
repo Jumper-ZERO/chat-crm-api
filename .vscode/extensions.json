@@ -4,5 +4,6 @@
     "redhat.vscode-yaml",
     "dbaeumer.vscode-eslint",
     "ms-vscode.vscode-docker",
+    "mariusalchimavicius.json-to-ts"
   ],
 }
