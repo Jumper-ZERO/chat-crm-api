@@ -16,7 +16,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ClientsModule } from './modules/clients/clients.module';
-import { LogsModule } from './modules/logs/logs.module';
 import { UsersModule } from './modules/users/users.module';
 import { IsUniqueConstraint } from './utils/validators';
 
@@ -65,7 +64,6 @@ import { IsUniqueConstraint } from './utils/validators';
     UsersModule,
     ClientsModule,
     ChatsModule,
-    LogsModule,
     AuthModule,
   ],
   controllers: [AppController],
