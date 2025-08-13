@@ -1,8 +1,8 @@
+import { isUnique } from '@utils/validators';
 import { Type } from "class-transformer";
 import { IsBoolean, IsDate, IsEnum, IsOptional, IsString, Matches, MinLength } from "class-validator";
 import { i18nValidationMessage as t } from "nestjs-i18n";
 import { UserRole } from "src/modules/users/entities/user.entity";
-import { isUnique } from '@utils/validators'
 
 export class CreateUserDto {
   @IsString()

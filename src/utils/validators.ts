@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from "@nestjs/common";
 import { ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface, registerDecorator } from "class-validator";
 import { I18nService } from "nestjs-i18n";
@@ -18,10 +20,10 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
 
   async validate(
     value: any,
-    args?: ValidationArguments
+    args: ValidationArguments
   ): Promise<boolean> {
     // catch options from decorator
-    const { tableName, column }: IsUniqeInterface = args?.constraints[0]
+    const { tableName, column }: IsUniqeInterface = args.constraints[0]
 
     // database query check data is exists
     const dataExist = await this.entityManager.getRepository(tableName)
