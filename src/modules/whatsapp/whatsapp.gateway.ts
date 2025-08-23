@@ -23,8 +23,6 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
   handleMessage(@MessageBody() data: { to: string; text: string }) {
     console.log('📨 Mensaje desde React:', data);
 
-    // TODO: Llamar API de WhatsApp para enviar al usuario real
-
     this.server.emit('message', {
       from: 'me',
       to: data.to,
@@ -45,16 +43,6 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
   handleJoinChat(@ConnectedSocket() client: Socket, @MessageBody() chatId: string) {
     void client.join(chatId);
     console.log(`Cliente ${client.id} unido al chat ${chatId}`);
-  }
-
-  @SubscribeMessage('sendMessage')
-  handleSendMessage(
-    @MessageBody() payload: { chatId: string; text: string }
-  ) {
-    this.server.to(payload.chatId).emit('newMessage', {
-      from: 'me',
-      text: payload.text,
-    });
   }
 
   emitIncomingMessage(chatId: string, message: any) {
