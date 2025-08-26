@@ -49,7 +49,7 @@ export default tseslint.config(
             'internal',          // Internal modules
             ['parent', 'sibling', 'index'], // Relative imports
           ],
-          'newlines-between': 'always',
+          'newlines-between': 'ignore',
           alphabetize: {
             order: 'asc',
             caseInsensitive: true,

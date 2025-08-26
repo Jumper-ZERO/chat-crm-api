@@ -17,7 +17,6 @@
     "**/dist": true
   },
   "editor.codeActionsOnSave": {
-    "source.organizeImports": "always",
     "source.fixAll.eslint": "always"
   },
   "typescript.suggest.autoImports": true,
