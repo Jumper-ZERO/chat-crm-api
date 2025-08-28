@@ -12,7 +12,6 @@ export class WhatsAppConfigSubscriber implements EntitySubscriberInterface<Whats
   }
 
   async beforeInsert(event: InsertEvent<WhatsAppConfig>): Promise<void> {
-    console.log('✅ beforeInsert ejecutado');
     const isActive = event.entity.isActive ?? true;
     console.log(isActive)
 
