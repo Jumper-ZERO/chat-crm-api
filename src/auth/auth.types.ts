@@ -5,9 +5,10 @@ export type JwtPayload = {
 };
 
 export interface AuthUser {
-  id?: number;
-  username?: string;
-  role?: string;
+  id: number;
+  username: string;
+  role: string;
+  businessId?: string
 }
 
 export interface AuthRequest {

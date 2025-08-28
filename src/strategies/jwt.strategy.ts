@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { AuthUser, JwtPayload } from '../auth/auth.types';
+import { WhatsAppConfigService } from '../modules/whatsapp/services/whatsapp-config.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(@Inject(WhatsAppConfigService) private whatappConfigService: WhatsAppConfigService) {
+
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -18,7 +20,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  validate(payload: JwtPayload): AuthUser {
-    return { id: payload.sub, username: payload.username, role: payload.role };
+  async validate(payload: JwtPayload): Promise<AuthUser> {
+    const businessId = await this.whatappConfigService.findByBusinessIdActive()
+
+    return {
+      id: payload.sub,
+      username: payload.username,
+      role: payload.role,
+      businessId: businessId
+    };
   }
 }

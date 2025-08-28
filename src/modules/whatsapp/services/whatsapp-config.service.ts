@@ -33,6 +33,14 @@ export class WhatsAppConfigService {
     return await this.configRepository.save(config);
   }
 
+  async findByBusinessIdActive(): Promise<string | undefined> {
+    const config = await this.configRepository.findOne({
+      where: { isActive: true }
+    });
+
+    return config?.businessId;
+  }
+
   async findByBusinessId(businessId: string): Promise<WhatsAppConfig> {
     const config = await this.configRepository.findOne({
       where: { businessId, isActive: true }

@@ -25,5 +25,6 @@ import { WhatsappGateway } from './whatsapp.gateway';
   ],
   controllers: [WhatsappController, WhatsappWebhookController, WhatsAppConfigController],
   providers: [WhatsappService, WhatsAppConfigService, WhatsappGateway, WhatsAppConfigSubscriber],
+  exports: [WhatsAppConfigService],
 })
 export class WhatsappModule { }
