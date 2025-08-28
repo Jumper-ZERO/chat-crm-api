@@ -1,5 +1,5 @@
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import * as bcrypt from 'bcrypt';
+import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -8,7 +8,7 @@ export enum UserRole {
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column({ unique: true })

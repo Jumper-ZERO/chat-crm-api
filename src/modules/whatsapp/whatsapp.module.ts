@@ -7,6 +7,7 @@ import { WhatsAppConfigService } from './services/whatsapp-config.service';
 import { WhatsappService } from './whatsapp.service';
 import { WhatsAppConfigController, WhatsappController, WhatsappWebhookController } from './controllers';
 import { WhatsAppConfig, WhatsAppContact, WhatsAppMessage, WhatsAppTemplate } from './entities';
+import { WhatsAppConfigSubscriber } from './subscribers/whatsapp-config.subscriber';
 import { WhatsappGateway } from './whatsapp.gateway';
 
 @Module({
@@ -23,6 +24,6 @@ import { WhatsappGateway } from './whatsapp.gateway';
     HttpModule
   ],
   controllers: [WhatsappController, WhatsappWebhookController, WhatsAppConfigController],
-  providers: [WhatsappService, WhatsAppConfigService, WhatsappGateway],
+  providers: [WhatsappService, WhatsAppConfigService, WhatsappGateway, WhatsAppConfigSubscriber],
 })
 export class WhatsappModule { }
