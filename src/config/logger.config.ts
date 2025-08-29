@@ -1,5 +1,6 @@
 export const loggerConfig = {
   pinoHttp: {
+    level: 'debug',
     transport: {
       target: 'pino-pretty',
       options: {
