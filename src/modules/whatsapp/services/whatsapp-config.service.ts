@@ -33,6 +33,14 @@ export class WhatsAppConfigService {
     return await this.configRepository.save(config);
   }
 
+  async getConfigActive(): Promise<WhatsAppConfig | null> {
+    const config = this.configRepository.findOne({
+      where: { isActive: true }
+    });
+
+    return config;
+  }
+
   async findByBusinessIdActive(): Promise<string | undefined> {
     const config = await this.configRepository.findOne({
       where: { isActive: true }
@@ -49,6 +57,17 @@ export class WhatsAppConfigService {
     if (!config) {
       throw new NotFoundException('WhatsApp configuration not found');
     }
+
+    return config;
+  }
+
+  async updateByBusinessId(businessId: string, dto: UpdateWhatsAppConfigDto): Promise<WhatsAppConfig | null> {
+    const config = await this.configRepository.findOne({
+      where: { businessId }
+    });
+
+    if (!config?.id) return null
+    await this.configRepository.update(config?.id, dto);
 
     return config;
   }
