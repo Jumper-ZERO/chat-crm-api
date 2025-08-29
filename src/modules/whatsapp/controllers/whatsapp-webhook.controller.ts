@@ -1,14 +1,28 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, OnModuleInit, Post, Query, Res } from '@nestjs/common';
+import type { WhatsappNotification, WhatsappNotificationTextMessage } from '@daweto/whatsapp-api-types'
 import type { Response } from 'express';
+import { PinoLogger } from 'nestjs-pino';
 
+import { WhatsAppConfig } from '../entities';
+import { WhatsAppConfigService } from '../services/whatsapp-config.service';
 import { WhatsappGateway } from '../whatsapp.gateway';
 
-
 @Controller('whatsapp/webhook')
-export class WhatsappWebhookController {
-  constructor(private readonly whatsappGateway: WhatsappGateway) { }
+export class WhatsappWebhookController implements OnModuleInit {
+  private config: WhatsAppConfig | null = null;
+
+  constructor(
+    private readonly whatsappGateway: WhatsappGateway,
+    private readonly whatsappConfig: WhatsAppConfigService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(WhatsappWebhookController.name)
+  }
+
+  async onModuleInit() {
+    this.config = await this.whatsappConfig.getConfigActive();
+  }
+
   @Get()
   verifyWebhook(
     @Query('hub.mode') mode: string,
@@ -16,33 +30,42 @@ export class WhatsappWebhookController {
     @Query('hub.challenge') challenge: string,
     @Res() res: Response,
   ) {
-    console.log(mode, token, challenge);
-    console.log(process.env.WHATSAPP_VERIFY_TOKEN);
-    if (mode === 'subscribe' && token === process.env.WHATSAPP_VERIFY_TOKEN) {
-      console.log('✅ WEBHOOK VERIFIED');
-      return res.status(200).send(challenge);
+    if (mode === 'subscribe' && token === this.config?.verifyToken) {
+      this.logger.info('WEBHOOK VERIFIED')
+      return res.status(HttpStatus.OK).send(challenge);
     } else {
-      return res.sendStatus(403);
+      return res.sendStatus(HttpStatus.FORBIDDEN);
     }
   }
 
+
+
+  // TODO: Best handler for webhook (implemented service, processor)
   @Post()
-  handleWebhook(@Body() body: any, @Res() res: Response) {
-    console.log('📩 Webhook recibido:', JSON.stringify(body, null, 2));
+  handleWebhook(@Body() body: WhatsappNotification, @Res() res: Response): Response {
+    // console.log(body)
+    this.logger.info(body, 'Webhook received');
 
-    const entry = body.entry?.[0];
-    const changes = entry?.changes?.[0];
-    const message = changes?.value?.messages?.[0];
+    const messages = body.entry?.[0]?.changes?.[0]?.value?.messages;
+    this.logger.debug(`Webhook Messages:\n${JSON.stringify(messages, null, 2)}`);
 
-    if (message) {
-      const from = message.from;  // número del usuario
-      const text = message.text?.body;
+    const entry = body.entry?.[0]?.changes?.[0]?.value;
 
-      // Aquí notificas vía websocket al chat correspondiente
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      this.whatsappGateway.emitIncomingMessage(from, { from, text });
+    // Handle status errors
+    entry?.statuses?.forEach(status =>
+      status.errors?.forEach(error => this.logger.error(error.title))
+    );
+
+    // Handle text messages
+    const message = entry?.messages?.[0] as WhatsappNotificationTextMessage | undefined;
+    if (message && (message.type as string) === 'text') {
+      const { from, text } = message;
+      if (from && text?.body) {
+        this.whatsappGateway.emitIncomingMessage(from, { from, text: text.body });
+      }
     }
-    return res.sendStatus(200);
+
+    return res.sendStatus(HttpStatus.OK);
   }
 }
 

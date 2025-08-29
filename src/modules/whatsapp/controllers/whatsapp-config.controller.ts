@@ -17,9 +17,9 @@ export class WhatsAppConfigController {
     return this.configService.findByBusinessId(businessId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDto: UpdateWhatsAppConfigDto) {
-    return this.configService.update(id, updateDto);
+  @Patch(':businessId')
+  update(@Param('businessId') businessId: string, @Body() updateDto: UpdateWhatsAppConfigDto) {
+    return this.configService.updateByBusinessId(businessId, updateDto);
   }
 
   @Delete(':id')
