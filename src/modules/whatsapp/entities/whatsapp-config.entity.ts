@@ -8,7 +8,7 @@ export class WhatsAppConfig {
   @Column({ unique: true })
   businessId: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 512 })
   accessToken: string;
 
   @Column()
