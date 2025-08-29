@@ -19,6 +19,9 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"
   },
+  "vim.handleKeys": {
+    "<C-d>": false
+  },
   "typescript.suggest.autoImports": true,
   // "editor.inlineSuggest.enabled": false // IA complementations
 }
