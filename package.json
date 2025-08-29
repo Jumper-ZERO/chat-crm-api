@@ -50,6 +50,7 @@
     "typeorm": "^0.3.25"
   },
   "devDependencies": {
+    "@daweto/whatsapp-api-types": "^1.2.1",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",
