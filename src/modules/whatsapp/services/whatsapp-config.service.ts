@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { AxiosError } from 'axios';
@@ -85,33 +85,33 @@ export class WhatsAppConfigService {
     const config = await this.findByBusinessId(businessId);
 
     if (!this.isValidConfig(config)) {
-      this.logger.warn(`Invalid configuration for businessId: ${businessId}`);
-      return false;
+      throw new BadRequestException(`Invalid configuration for businessId: ${businessId}`);
     }
 
     const url = this.buildApiUrl(config);
 
-    try {
-      const response = await this.http.axiosRef(url, {
-        headers: this.buildAuthHeaders(config.accessToken),
-      });
+    return this.http.axiosRef(url, {
+      headers: this.buildAuthHeaders(config.accessToken),
+    }).then((res) => {
+      if (res.status != (HttpStatus.OK as number)) {
+        throw new InternalServerErrorException('WhatsApp API returned unexpected status');
+      }
+      return true;
+    }).catch((err: AxiosError) => {
+      const data = err.response?.data as { error?: FacebookError };
+      const message = data?.error?.message ?? 'Unexpected error';
+      const type = data?.error?.type ?? 'Unknown';
 
-      const isSuccess = response.status === 200;
-      this.logger.info(`Response status for businessId ${businessId}: ${response.status}`);
-      this.logger.info(`Connection ${isSuccess ? 'successful' : 'failed'} for businessId: ${businessId}`);
-      return isSuccess;
-    } catch (error) {
-      const err = error as AxiosError
-
-      const data = err.response?.data as { error: FacebookError }
-      const message = data.error?.message;
-      const type = data.error?.type ?? 'Unknown';
-
-      this.logger.error(`Error testing WhatsApp connection for businessId: ${businessId}`, error);
-      this.logger.error(`WhatsApp connection failed [${type}] for businessId: ${businessId}\n\t${message}\n\n`);
-
-      return false;
-    }
+      throw new HttpException(
+        {
+          success: false,
+          statusCode: err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+          error: type,
+          message,
+        },
+        err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    })
   }
 
   private isValidConfig(config: Partial<WhatsAppConfig>): boolean {

@@ -27,8 +27,9 @@ export class WhatsAppConfigController {
     return this.configService.remove(id);
   }
 
-  @Post(':businessId/test-connection')
-  testConnection(@Param('businessId') businessId: string) {
-    return this.configService.testConnection(businessId);
+  @Get(':businessId/test-connection')
+  async testConnection(@Param('businessId') businessId: string) {
+    const success = await this.configService.testConnection(businessId);
+    return { success, message: 'Connection successful' };
   }
 }
