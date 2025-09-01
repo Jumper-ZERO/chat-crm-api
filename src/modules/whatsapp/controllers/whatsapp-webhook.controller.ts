@@ -20,7 +20,7 @@ export class WhatsappWebhookController implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.config = await this.whatsappConfig.getConfigActive();
+    this.config = await this.whatsappConfig.active();
   }
 
   extractFromValue<T>(body: WhatsappNotification, key: keyof WhatsappNotificationValue): T[] {

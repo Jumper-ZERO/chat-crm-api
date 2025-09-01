@@ -1,29 +1,22 @@
-import { HttpService } from '@nestjs/axios';
-import { BadRequestException, HttpException, HttpStatus, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { AxiosError } from 'axios';
 import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm';
 
 import { CreateWhatsAppConfigDto, UpdateWhatsAppConfigDto } from '../dto/whatsapp-config.dto';
 import { WhatsAppConfig } from '../entities/whatsapp-config.entity';
-
-interface FacebookError {
-  message?: string;
-  type?: string;
-  code?: number;
-  error_subcode?: number;
-  fbtrace_id?: string;
-}
+import { WhatsAppConfigNotFoundException } from '../exceptions/whatsapp-config.exceptions';
+import { WhatsAppInvalidConfigException } from '../exceptions/whatsapp.exceptions';
+import { WhatsAppApiClient } from '../whatsapp-api.client';
 
 @Injectable()
 export class WhatsAppConfigService {
   constructor(
     @InjectRepository(WhatsAppConfig)
     private configRepository: Repository<WhatsAppConfig>,
-    private readonly http: HttpService,
     private readonly logger: PinoLogger,
+    private readonly client: WhatsAppApiClient,
   ) {
     this.logger.setContext(WhatsAppConfigService.name)
   }
@@ -33,20 +26,14 @@ export class WhatsAppConfigService {
     return await this.configRepository.save(config);
   }
 
-  async getConfigActive(): Promise<WhatsAppConfig | null> {
-    const config = this.configRepository.findOne({
-      where: { isActive: true }
-    });
-
-    return config;
-  }
-
-  async findByBusinessIdActive(): Promise<string | undefined> {
+  async active(): Promise<WhatsAppConfig> {
     const config = await this.configRepository.findOne({
       where: { isActive: true }
     });
 
-    return config?.businessId;
+    if (!config) throw new WhatsAppConfigNotFoundException();
+
+    return config;
   }
 
   async findByBusinessId(businessId: string): Promise<WhatsAppConfig> {
@@ -54,9 +41,7 @@ export class WhatsAppConfigService {
       where: { businessId, isActive: true }
     });
 
-    if (!config) {
-      throw new NotFoundException('WhatsApp configuration not found');
-    }
+    if (!config) throw new WhatsAppConfigNotFoundException();
 
     return config;
   }
@@ -66,7 +51,7 @@ export class WhatsAppConfigService {
       where: { businessId }
     });
 
-    if (!config?.id) return null
+    if (!config?.id) throw new WhatsAppConfigNotFoundException();
     await this.configRepository.update(config?.id, dto);
 
     return config;
@@ -83,35 +68,11 @@ export class WhatsAppConfigService {
 
   async testConnection(businessId: string): Promise<boolean> {
     const config = await this.findByBusinessId(businessId);
-
-    if (!this.isValidConfig(config)) {
-      throw new BadRequestException(`Invalid configuration for businessId: ${businessId}`);
-    }
-
     const url = this.buildApiUrl(config);
 
-    return this.http.axiosRef(url, {
-      headers: this.buildAuthHeaders(config.accessToken),
-    }).then((res) => {
-      if (res.status != (HttpStatus.OK as number)) {
-        throw new InternalServerErrorException('WhatsApp API returned unexpected status');
-      }
-      return true;
-    }).catch((err: AxiosError) => {
-      const data = err.response?.data as { error?: FacebookError };
-      const message = data?.error?.message ?? 'Unexpected error';
-      const type = data?.error?.type ?? 'Unknown';
+    if (!this.isValidConfig(config)) throw new WhatsAppInvalidConfigException(businessId);
 
-      throw new HttpException(
-        {
-          success: false,
-          statusCode: err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
-          error: type,
-          message,
-        },
-        err.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    })
+    return this.client.testConnection(url);
   }
 
   private isValidConfig(config: Partial<WhatsAppConfig>): boolean {
@@ -119,12 +80,6 @@ export class WhatsAppConfigService {
   }
 
   private buildApiUrl(config: WhatsAppConfig): string {
-    return `${config.apiBaseUrl}/${config.apiVersion}/${config.phoneNumberId}`;
-  }
-
-  private buildAuthHeaders(token: string): Record<string, string> {
-    return {
-      Authorization: `Bearer ${token}`,
-    };
+    return `${config.apiBaseUrl}/${config.apiVersion}/debug_token?input_token=${config.accessToken}&access_token=${config.accessToken}`;
   }
 }

@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<AuthUser> {
-    const businessId = await this.whatappConfigService.findByBusinessIdActive()
+    const { businessId } = await this.whatappConfigService.active()
 
     return {
       id: payload.sub,
