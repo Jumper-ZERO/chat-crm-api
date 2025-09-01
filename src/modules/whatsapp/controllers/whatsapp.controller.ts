@@ -1,28 +1,15 @@
-import { HttpService } from "@nestjs/axios";
 import { Body, Controller, Post } from "@nestjs/common";
+import { SendMessageDto } from "../dto/send-message.dto";
+import { WhatsappService } from "../whatsapp.service";
 
 @Controller('whatsapp')
 export class WhatsappController {
-  constructor(private readonly http: HttpService) { }
+  constructor(
+    private readonly service: WhatsappService
+  ) { }
   @Post('send')
-  async sendMessage(@Body() body: { to: string; message: string }) {
-    const url = `https://graph.facebook.com/v22.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
-
-    const payload = {
-      messaging_product: 'whatsapp',
-      to: body.to, // Ej: "51999999999"
-      type: 'text',
-      text: { body: body.message },
-    };
-
-    const headers = {
-      Authorization: `Bearer ${process.env.WHATSAPP_ACCESS_TOKEN}`,
-      'Content-Type': 'application/json',
-    };
-
-    const response = await this.http.axiosRef.post(url, payload, { headers });
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return response.data;
+  async sendMessage(@Body() body: SendMessageDto) {
+    const success = await this.service.sendMessage(body.to, body.message);
+    return { success, message: 'Message sent' };
   }
 }
