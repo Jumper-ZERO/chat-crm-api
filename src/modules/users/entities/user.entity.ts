@@ -1,5 +1,6 @@
 import * as bcrypt from 'bcrypt';
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Contact } from '../../contacts/entities/contact.entity.js';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -9,7 +10,7 @@ export enum UserRole {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Column({ unique: true })
   username: string;
@@ -24,11 +25,11 @@ export class User {
   })
   role: UserRole;
 
-  @Column({ default: true })
+  @Column({ type: 'tinyint', default: 0, nullable: false })
   isActive: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  lastLogin: Date;
+  @Column({ type: 'tinyint', default: 0, nullable: false })
+  isDeleted: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -36,6 +37,11 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
+  // Relation with Contact entity
+  @OneToMany(() => Contact, (contact) => contact.assignedTo)
+  contacts: Contact[];
+
+  // Hash password before inserting into the database
   @BeforeInsert()
   async hashPassword() {
     this.password = await bcrypt.hash(this.password, 10); // cost factor: 10

@@ -24,6 +24,7 @@ import { IsUniqueConstraint } from './utils/validators';
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
 import { ClientsModule } from './modules/clients/clients.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
 import { UsersModule } from './modules/users/users.module';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
 
@@ -39,6 +40,7 @@ import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
     ChatsModule,
     AuthModule,
     WhatsappModule,
+    ContactsModule,
   ],
   controllers: [AppController],
   providers: [AppService, IsUniqueConstraint],

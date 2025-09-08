@@ -1,6 +1,5 @@
 import { isUnique } from '@utils/validators';
-import { Type } from "class-transformer";
-import { IsBoolean, IsDate, IsEnum, IsOptional, IsString, Matches, MinLength } from "class-validator";
+import { IsBoolean, IsEnum, IsOptional, IsString, Matches, MinLength } from "class-validator";
 import { i18nValidationMessage as t } from "nestjs-i18n";
 import { UserRole } from "src/modules/users/entities/user.entity";
 
@@ -25,9 +24,4 @@ export class CreateUserDto {
   @IsBoolean({ message: t('validations.invalid.boolean', { attr: 'isActive' }) })
   @IsOptional()
   isActive: boolean;
-
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate({ message: t('validations.invalid.date', { attr: 'lastLogin' }) })
-  lastLogin?: Date;
 }

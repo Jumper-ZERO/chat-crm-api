@@ -4,9 +4,8 @@ import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { UsersService } from 'src/modules/users/users.service';
 
-import { User } from '../modules/users/entities/user.entity';
-
 import { JwtPayload } from './auth.types';
+import { User } from '../modules/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
