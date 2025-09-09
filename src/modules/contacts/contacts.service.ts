@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 import { Repository } from 'typeorm';
 import { UpdateResult } from 'typeorm/browser';
 import { CreateContactDto } from './dto/create-contact.dto';
@@ -15,6 +20,10 @@ export class ContactsService {
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
   ) { }
+
+  async paginate(options: IPaginationOptions): Promise<Pagination<Contact>> {
+    return paginate<Contact>(this.contactRepo, options);
+  }
 
   async create(dto: CreateContactDto): Promise<Contact> {
     let user: User | undefined;
