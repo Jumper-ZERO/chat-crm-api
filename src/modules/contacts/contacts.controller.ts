@@ -1,7 +1,23 @@
-import { Body, Controller, DefaultValuePipe, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import type { Request } from 'express';
+import qs from 'qs';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
+import { Contact } from './entities/contact.entity';
+
+interface ParsedSort<T> {
+  id: keyof T;
+  desc: string;
+}
+
+export interface ParsedQuery {
+  page?: string;
+  perPage?: string;
+  name?: string;
+  sort?: ParsedSort<Contact>[];
+  [key: string]: unknown;
+}
 
 @Controller('contacts')
 export class ContactsController {
@@ -13,12 +29,12 @@ export class ContactsController {
   }
 
   @Get()
-  findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
-  ) {
-    limit = limit > 100 ? 100 : limit;
-    return this.contactService.paginate({ page, limit, route: '/contacts' });
+  findAll(@Req() req: Request) {
+    const queryString = req.url.split('?')[1] || '';
+
+    const parsed = qs.parse(queryString, { depth: 10 }) as ParsedQuery;
+
+    return this.contactService.findAll(parsed);
   }
 
   @Get(':phone')
