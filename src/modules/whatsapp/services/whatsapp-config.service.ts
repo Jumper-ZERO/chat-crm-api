@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm';
 
+import { Company } from '../../companies/entities/company.entity';
 import { CreateWhatsAppConfigDto, UpdateWhatsAppConfigDto } from '../dto/whatsapp-config.dto';
 import { WhatsAppConfig } from '../entities/whatsapp-config.entity';
 import { WhatsAppConfigNotFoundException } from '../exceptions/whatsapp-config.exceptions';
@@ -21,8 +22,23 @@ export class WhatsAppConfigService {
     this.logger.setContext(WhatsAppConfigService.name)
   }
 
+  async getActiveByCompany(companyId: string): Promise<WhatsAppConfig> {
+    return await this.configRepository.findOneOrFail({
+      where: { company: { id: companyId }, isActive: true },
+    });
+  }
+
   async create(createDto: CreateWhatsAppConfigDto): Promise<WhatsAppConfig> {
-    const config = this.configRepository.create(createDto);
+    await this.configRepository.update({
+      company: { id: createDto.companyId },
+      isActive: true
+    }, { isActive: false });
+
+    const config = this.configRepository.create({
+      ...createDto,
+      company: { id: createDto.companyId } as Company,
+    });
+
     return await this.configRepository.save(config);
   }
 
@@ -52,7 +68,13 @@ export class WhatsAppConfigService {
     });
 
     if (!config?.id) throw new WhatsAppConfigNotFoundException();
-    await this.configRepository.update(config?.id, dto);
+
+    const { companyId, ...configDto } = dto;
+
+    await this.configRepository.update(config?.id, {
+      ...configDto,
+      company: { id: companyId } as Company
+    });
 
     return config;
   }

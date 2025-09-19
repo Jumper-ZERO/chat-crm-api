@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "../../users/entities/user.entity";
-import { CustomerStatus, ContactSource } from "../contact.enum";
+import { ContactStatus } from "../contact.enum";
 
 @Entity('contacts')
 export class Contact {
@@ -14,11 +14,8 @@ export class Contact {
   @Column({ type: 'varchar', nullable: false })
   phone: string;
 
-  @Column({ type: 'enum', enum: CustomerStatus, default: CustomerStatus.NEW })
-  customerStatus: CustomerStatus;
-
-  @Column({ type: 'enum', enum: ContactSource, default: ContactSource.MANUAL })
-  source: ContactSource;
+  @Column({ type: 'enum', enum: ContactStatus, default: ContactStatus.NEW })
+  status: ContactStatus;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -30,6 +27,6 @@ export class Contact {
   deletedAt?: Date
 
   // Relation with User entity
-  @ManyToOne(() => User, (user) => user.contacts, { nullable: true })
+  @ManyToOne(() => User, (user) => user.contacts, { nullable: true, onDelete: 'SET NULL' })
   assignedTo: User;
 }

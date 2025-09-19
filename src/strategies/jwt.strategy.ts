@@ -1,14 +1,13 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { AuthUser, JwtPayload } from '../auth/auth.types';
-import { WhatsAppConfigService } from '../modules/whatsapp/services/whatsapp-config.service';
+import { JwtPayload } from '../auth/auth.types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(@Inject(WhatsAppConfigService) private whatappConfigService: WhatsAppConfigService) {
+  constructor() {
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -20,14 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<AuthUser> {
-    const { businessId } = await this.whatappConfigService.active()
-
-    return {
-      id: payload.sub,
-      username: payload.username,
-      role: payload.role,
-      businessId: businessId
-    };
+  validate(payload: JwtPayload) {
+    return payload
   }
 }

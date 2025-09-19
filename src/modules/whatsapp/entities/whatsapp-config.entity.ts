@@ -1,9 +1,16 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Company } from "../../companies/entities/company.entity";
 
 @Entity('whatsapp_configs')
 export class WhatsAppConfig {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ type: "varchar", default: "v22.0" })
+  apiVersion: string;
+
+  @Column({ type: "varchar", default: "https://graph.facebook.com" })
+  apiBaseUrl: string;
 
   @Column({ unique: true })
   businessId: string;
@@ -14,29 +21,21 @@ export class WhatsAppConfig {
   @Column()
   phoneNumberId: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 512 })
   webhookUrl: string;
 
-  @Column()
-  verifyToken: string;
-
-  @Column({ type: "varchar", default: "v18.0" })
-  apiVersion: string;
-
-  @Column({ type: "varchar", default: "https://graph.facebook.com" })
-  apiBaseUrl: string;
+  @Column({ type: 'varchar', length: 256 })
+  webhookVerifyToken: string;
 
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ nullable: true })
-  businessName: string;
+  @ManyToOne(() => Company, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'companyId' })
+  company: Company;
 
-  @Column({ nullable: true })
-  businessDescription: string;
-
-  @Column('json', { nullable: true })
-  webhookEvents: string[];
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt?: Date;
 
   @CreateDateColumn()
   createdAt: Date;

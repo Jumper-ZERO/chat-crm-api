@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsOptional, IsString, IsUrl, Matches } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { IsBoolean, IsOptional, IsString, IsUrl, IsUUID, Matches } from 'class-validator';
 
 export class CreateWhatsAppConfigDto {
   @IsString()
@@ -14,7 +15,7 @@ export class CreateWhatsAppConfigDto {
   webhookUrl: string;
 
   @IsString()
-  verifyToken: string;
+  webhookVerifyToken: string;
 
   @IsOptional()
   @Matches(/^v\d{2}\.\d$/)
@@ -25,56 +26,11 @@ export class CreateWhatsAppConfigDto {
   apiBaseUrl: string;
 
   @IsOptional()
-  @IsString()
-  businessName?: string;
-
-  @IsOptional()
-  @IsString()
-  businessDescription?: string;
-
-  @IsOptional()
-  @IsArray()
-  webhookEvents?: string[];
-}
-
-export class UpdateWhatsAppConfigDto {
-  @IsOptional()
-  @IsString()
-  accessToken?: string;
-
-  @IsOptional()
-  @IsString()
-  phoneNumberId?: string;
-
-  @IsOptional()
-  @IsString()
-  webhookUrl?: string;
-
-  @IsOptional()
-  @IsString()
-  verifyToken?: string;
-
-  @IsOptional()
-  @Matches(/^v\d{2}\.\d$/)
-  apiVersion?: string;
-
-  @IsOptional()
-  @IsUrl()
-  apiBaseUrl?: string;
-
-  @IsOptional()
   @IsBoolean()
   isActive?: boolean;
 
-  @IsOptional()
-  @IsString()
-  businessName?: string;
-
-  @IsOptional()
-  @IsString()
-  businessDescription?: string;
-
-  @IsOptional()
-  @IsArray()
-  webhookEvents?: string[];
+  @IsUUID()
+  companyId: string;
 }
+
+export class UpdateWhatsAppConfigDto extends PartialType(CreateWhatsAppConfigDto) { }

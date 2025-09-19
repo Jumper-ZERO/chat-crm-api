@@ -1,26 +1,22 @@
-import { Body, Controller, Get, HttpStatus, OnModuleInit, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import type { WhatsappNotification, WhatsappNotificationMessage, WhatsappNotificationStatus, WhatsappNotificationTextMessage, WhatsappNotificationValue } from '@daweto/whatsapp-api-types'
 import type { Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
 
-import { WhatsAppConfig } from '../entities';
+import type { JwtPayload } from '../../../auth/auth.types';
 import { WhatsAppConfigService } from '../services/whatsapp-config.service';
 import { WhatsappGateway } from '../whatsapp.gateway';
 
 @Controller('whatsapp/webhook')
-export class WhatsappWebhookController implements OnModuleInit {
-  private config: WhatsAppConfig | null = null;
-
+@UseGuards(AuthGuard('jwt'))
+export class WhatsappWebhookController {
   constructor(
     private readonly whatsappGateway: WhatsappGateway,
     private readonly whatsappConfig: WhatsAppConfigService,
     private readonly logger: PinoLogger,
   ) {
     this.logger.setContext(WhatsappWebhookController.name)
-  }
-
-  async onModuleInit() {
-    this.config = await this.whatsappConfig.active();
   }
 
   extractFromValue<T>(body: WhatsappNotification, key: keyof WhatsappNotificationValue): T[] {
@@ -34,21 +30,22 @@ export class WhatsappWebhookController implements OnModuleInit {
   }
 
   @Get()
-  verifyWebhook(
+  async verifyWebhook(
     @Query('hub.mode') mode: string,
     @Query('hub.verify_token') token: string,
     @Query('hub.challenge') challenge: string,
     @Res() res: Response,
+    @Req() req: JwtPayload,
   ) {
-    if (mode === 'subscribe' && token === this.config?.verifyToken) {
+    const config = await this.whatsappConfig.getActiveByCompany(req.companyId)
+
+    if (mode === 'subscribe' && token === config.webhookVerifyToken) {
       this.logger.info('WEBHOOK VERIFIED')
       return res.status(HttpStatus.OK).send(challenge);
     } else {
       return res.sendStatus(HttpStatus.FORBIDDEN);
     }
   }
-
-
 
   // TODO: Best handler for webhook (implemented service, processor)
   @Post()

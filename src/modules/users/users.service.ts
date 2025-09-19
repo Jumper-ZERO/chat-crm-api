@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { UpdateResult } from 'typeorm/browser';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Company } from '../companies/entities/company.entity';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,10 @@ export class UsersService {
   ) { }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(createUserDto)
+    const user = this.userRepository.create({
+      ...createUserDto,
+      company: { id: createUserDto.companyId } as Company
+    })
     return this.userRepository.save(user);
   }
 
@@ -27,7 +31,10 @@ export class UsersService {
   }
 
   findByUsername(username: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { username } });
+    return this.userRepository.findOne({
+      where: { username },
+      relations: ['company']
+    });
   }
 
   update(id: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {

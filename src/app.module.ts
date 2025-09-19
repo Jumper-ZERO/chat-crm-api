@@ -27,6 +27,7 @@ import { ClientsModule } from './modules/clients/clients.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { UsersModule } from './modules/users/users.module';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
+import { CompaniesModule } from './modules/companies/companies.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
     AuthModule,
     WhatsappModule,
     ContactsModule,
+    CompaniesModule,
   ],
   controllers: [AppController],
   providers: [AppService, IsUniqueConstraint],
