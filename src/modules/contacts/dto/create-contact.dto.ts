@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, IsUUID } from "class-validator";
 import { isUnique } from "../../../utils/validators";
-import { ContactSource, CustomerStatus } from "../contact.enum";
+import { ContactStatus } from "../contact.enum";
 
 export class CreateContactDto {
   @IsString()
@@ -12,12 +12,8 @@ export class CreateContactDto {
   phone: string;
 
   @IsOptional()
-  @IsEnum(CustomerStatus)
-  customerStatus?: CustomerStatus;
-
-  @IsOptional()
-  @IsEnum(ContactSource)
-  source?: ContactSource;
+  @IsEnum(ContactStatus)
+  status?: ContactStatus;
 
   @IsOptional()
   @IsUUID()

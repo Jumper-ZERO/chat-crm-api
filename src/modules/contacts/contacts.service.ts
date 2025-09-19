@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import {
   paginate,
   Pagination,
-  IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
 import { Repository, UpdateResult } from 'typeorm';
 import { ParsedQuery } from './contacts.controller';
@@ -22,19 +21,10 @@ export class ContactsService {
     private readonly userRepo: Repository<User>,
   ) { }
 
-  async paginate(options: IPaginationOptions): Promise<Pagination<Contact>> {
-    return paginate<Contact>(this.contactRepo, options);
-  }
-
   async create(dto: CreateContactDto): Promise<Contact> {
-    let user: User | undefined;
-
-    if (dto.assignedTo)
-      user = await this.findUserOrFail(dto.assignedTo);
-
     const contact = this.contactRepo.create({
       ...dto,
-      assignedTo: user,
+      assignedTo: { id: dto.assignedTo },
     });
 
     return this.contactRepo.save(contact);
@@ -61,12 +51,7 @@ export class ContactsService {
   }
 
   async update(id: string, dto: UpdateContactDto): Promise<UpdateResult> {
-    let user: User | undefined;
-
-    if (dto.assignedTo)
-      user = await this.findUserOrFail(dto.assignedTo);
-
-    return await this.contactRepo.update(id, { ...dto, assignedTo: user });
+    return await this.contactRepo.update(id, { ...dto, assignedTo: { id: dto.assignedTo } });
   }
 
   async remove(id: string): Promise<void> {
