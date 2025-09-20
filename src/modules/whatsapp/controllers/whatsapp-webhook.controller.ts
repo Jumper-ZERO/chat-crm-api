@@ -1,10 +1,9 @@
-import { Body, Controller, Get, HttpStatus, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Query, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import type { WhatsappNotification, WhatsappNotificationMessage, WhatsappNotificationStatus, WhatsappNotificationTextMessage, WhatsappNotificationValue } from '@daweto/whatsapp-api-types'
 import type { Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
 
-import type { JwtPayload } from '../../../auth/auth.types';
 import { WhatsAppConfigService } from '../services/whatsapp-config.service';
 import { WhatsappGateway } from '../whatsapp.gateway';
 
@@ -35,11 +34,10 @@ export class WhatsappWebhookController {
     @Query('hub.verify_token') token: string,
     @Query('hub.challenge') challenge: string,
     @Res() res: Response,
-    @Req() req: JwtPayload,
   ) {
-    const config = await this.whatsappConfig.getActiveByCompany(req.companyId)
+    const config = await this.whatsappConfig.getActiveByVerifyToken(token);
 
-    if (mode === 'subscribe' && token === config.webhookVerifyToken) {
+    if (mode === 'subscribe' && token === config?.webhookVerifyToken) {
       this.logger.info('WEBHOOK VERIFIED')
       return res.status(HttpStatus.OK).send(challenge);
     } else {

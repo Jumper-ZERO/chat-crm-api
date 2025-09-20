@@ -28,6 +28,12 @@ export class WhatsAppConfigService {
     });
   }
 
+  async getActiveByVerifyToken(token: string) {
+    return await this.configRepository.findOne({
+      where: { webhookVerifyToken: token },
+    })
+  }
+
   async create(createDto: CreateWhatsAppConfigDto): Promise<WhatsAppConfig> {
     await this.configRepository.update({
       company: { id: createDto.companyId },

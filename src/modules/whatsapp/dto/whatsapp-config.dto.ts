@@ -14,9 +14,6 @@ export class CreateWhatsAppConfigDto {
   @IsString()
   webhookUrl: string;
 
-  @IsString()
-  webhookVerifyToken: string;
-
   @IsOptional()
   @Matches(/^v\d{2}\.\d$/)
   apiVersion: string;
