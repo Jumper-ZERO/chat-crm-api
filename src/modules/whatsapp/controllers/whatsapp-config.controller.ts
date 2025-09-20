@@ -1,11 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 
 import { CreateWhatsAppConfigDto, UpdateWhatsAppConfigDto } from '../dto/whatsapp-config.dto';
-import { WhatsAppExceptionFilter } from '../filters/whatsapp-exception.filter';
 import { WhatsAppConfigService } from '../services/whatsapp-config.service';
 
 @Controller('whatsapp/config')
-@UseFilters(WhatsAppExceptionFilter)
 export class WhatsAppConfigController {
   constructor(private readonly configService: WhatsAppConfigService) { }
 
