@@ -1,5 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post, Query, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Body, Controller, Get, HttpStatus, Post, Query, Res } from '@nestjs/common';
 import type { WhatsappNotification, WhatsappNotificationMessage, WhatsappNotificationStatus, WhatsappNotificationTextMessage, WhatsappNotificationValue } from '@daweto/whatsapp-api-types'
 import type { Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
@@ -8,7 +7,6 @@ import { WhatsAppConfigService } from '../services/whatsapp-config.service';
 import { WhatsappGateway } from '../whatsapp.gateway';
 
 @Controller('whatsapp/webhook')
-@UseGuards(AuthGuard('jwt'))
 export class WhatsappWebhookController {
   constructor(
     private readonly whatsappGateway: WhatsappGateway,
