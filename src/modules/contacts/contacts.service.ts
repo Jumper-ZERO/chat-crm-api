@@ -5,21 +5,32 @@ import {
   Pagination,
 } from 'nestjs-typeorm-paginate';
 import { Repository, UpdateResult } from 'typeorm';
-import { ParsedQuery } from './contacts.controller';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { Contact } from './entities/contact.entity';
-import { QueryBuilderHelper } from '../../lib/helpers/query-builder.helper';
-import { User } from '../users/entities/user.entity';
+import { type ContactQueryDto } from './contact.types';
+import { TypeOrmQueryHelperInput } from '../../common/types/data-table.types';
+import { buildQueryOptions } from '../../lib/helpers/build-query-options.helper';
 
 @Injectable()
 export class ContactsService {
   constructor(
     @InjectRepository(Contact)
     private readonly contactRepo: Repository<Contact>,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
   ) { }
+
+  async findPaginated(
+    query: ContactQueryDto,
+  ): Promise<Pagination<Contact>> {
+
+    const { findOptions, paginationOptions } = buildQueryOptions(query as TypeOrmQueryHelperInput);
+
+    return paginate<Contact>(
+      this.contactRepo,
+      paginationOptions,
+      findOptions,
+    );
+  }
 
   async create(dto: CreateContactDto): Promise<Contact> {
     const contact = this.contactRepo.create({
@@ -30,24 +41,8 @@ export class ContactsService {
     return this.contactRepo.save(contact);
   }
 
-  async findAll(query: ParsedQuery): Promise<Pagination<Contact>> {
-    const { page, perPage, name, status, sort } = query;
-    const { id, desc } = sort?.[0] || {};
-
-    const qb = this.qbContactWithUser()
-      .filter(!!name, 'contact.name LIKE LOWER(:name)', { name: `%${name}%` })
-      .filter(!!status, 'contact.customerStatus = :status', { status })
-      .sort(id, desc === 'true')
-      .build();
-
-    return paginate<Contact>(qb, { page: page ?? 1, limit: perPage ?? 10 });
-  }
-
-  private qbContactWithUser() {
-    const qb = this.contactRepo.createQueryBuilder('contact')
-      .leftJoinAndSelect('contact.assignedTo', 'user');
-
-    return new QueryBuilderHelper<Contact>(qb);
+  async findAll() {
+    return this.contactRepo.find()
   }
 
   async update(id: string, dto: UpdateContactDto): Promise<UpdateResult> {
@@ -64,9 +59,5 @@ export class ContactsService {
     return this.contactRepo.findOne({
       where: { phone },
     });
-  }
-
-  private findUserOrFail(id: string | undefined): Promise<User> {
-    return this.userRepo.findOneByOrFail({ id });
   }
 }

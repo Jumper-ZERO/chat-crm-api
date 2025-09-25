@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
-import type { Request } from 'express';
-import qs from 'qs';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { Contact } from './entities/contact.entity';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import { contactTableQuerySchema } from '../../common/schemas/contact-table-query.schema';
+import { type DataTableBaseQuery } from '../../common/types/data-table.types';
 
 interface ParsedSort<T> {
   id: keyof T;
@@ -28,13 +29,15 @@ export class ContactsController {
     return this.contactService.create(createContactDto);
   }
 
+  @Get("table")
+  @UsePipes(new ZodValidationPipe(contactTableQuerySchema))
+  getTable(@Query() query: DataTableBaseQuery) {
+    return this.contactService.findPaginated(query);
+  }
+
   @Get()
-  findAll(@Req() req: Request) {
-    const queryString = req.url.split('?')[1] || '';
-
-    const parsed = qs.parse(queryString, { depth: 10 }) as ParsedQuery;
-
-    return this.contactService.findAll(parsed);
+  findAll() {
+    return this.contactService.findAll();
   }
 
   @Get(':phone')

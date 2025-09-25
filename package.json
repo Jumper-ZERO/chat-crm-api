@@ -49,7 +49,8 @@
     "qs": "^6.14.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.25"
+    "typeorm": "^0.3.25",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@daweto/whatsapp-api-types": "^1.2.1",
