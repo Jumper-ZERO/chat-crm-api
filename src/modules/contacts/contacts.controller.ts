@@ -1,24 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
-import { Contact } from './entities/contact.entity';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { contactTableQuerySchema } from '../../common/schemas/contact-table-query.schema';
-import { type DataTableBaseQuery } from '../../common/types/data-table.types';
-
-interface ParsedSort<T> {
-  id: keyof T;
-  desc: string;
-}
-
-export interface ParsedQuery {
-  page?: string;
-  perPage?: string;
-  name?: string;
-  sort?: ParsedSort<Contact>[];
-  [key: string]: unknown;
-}
+import { type ContactTableQueryDto, contactTableQuerySchema } from '../../common/schemas/contact-table-query.schema';
 
 @Controller('contacts')
 export class ContactsController {
@@ -29,9 +14,10 @@ export class ContactsController {
     return this.contactService.create(createContactDto);
   }
 
-  @Get("table")
+  @Post('table')
   @UsePipes(new ZodValidationPipe(contactTableQuerySchema))
-  getTable(@Query() query: DataTableBaseQuery) {
+  getTable(@Body() query: ContactTableQueryDto) {
+    console.log(query)
     return this.contactService.findPaginated(query);
   }
 

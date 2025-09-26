@@ -8,8 +8,7 @@ import { Repository, UpdateResult } from 'typeorm';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { Contact } from './entities/contact.entity';
-import { type ContactQueryDto } from './contact.types';
-import { TypeOrmQueryHelperInput } from '../../common/types/data-table.types';
+import { ContactTableQueryDto } from '../../common/schemas/contact-table-query.schema';
 import { buildQueryOptions } from '../../lib/helpers/build-query-options.helper';
 
 @Injectable()
@@ -19,11 +18,8 @@ export class ContactsService {
     private readonly contactRepo: Repository<Contact>,
   ) { }
 
-  async findPaginated(
-    query: ContactQueryDto,
-  ): Promise<Pagination<Contact>> {
-
-    const { findOptions, paginationOptions } = buildQueryOptions(query as TypeOrmQueryHelperInput);
+  async findPaginated(query: ContactTableQueryDto): Promise<Pagination<Contact>> {
+    const { findOptions, paginationOptions } = buildQueryOptions(query);
 
     return paginate<Contact>(
       this.contactRepo,

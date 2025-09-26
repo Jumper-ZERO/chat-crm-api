@@ -1,17 +1,16 @@
 import { z } from "zod";
-import { createTableQuerySchema } from "./create-table-query.schema";
-import { commaSeparatedStringTransformer } from "../../common/utils/zod-transforms";
+import { dataTableBaseSchema } from "./data-table-base.schema";
 
 const contactFiltersShape = {
   name: z.string().optional(),
   phone: z.string().optional(),
 
-  status: commaSeparatedStringTransformer,
-  assignedTo: commaSeparatedStringTransformer,
+  status: z.array(z.string()).optional(),
+  assignedTo: z.array(z.string()).optional(),
 
   createdAt: z.string().optional(),
 };
 
-export const contactTableQuerySchema = createTableQuerySchema(contactFiltersShape);
+export const contactTableQuerySchema = dataTableBaseSchema.extend(contactFiltersShape);
 
 export type ContactTableQueryDto = z.infer<typeof contactTableQuerySchema>;

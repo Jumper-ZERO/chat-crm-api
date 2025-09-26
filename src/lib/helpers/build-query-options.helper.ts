@@ -1,58 +1,68 @@
 import { IPaginationOptions } from 'nestjs-typeorm-paginate';
-import { FindManyOptions, In, Like, Between } from 'typeorm';
-import { DataTableBaseDto } from '../../common/schemas/data-table-base.schema';
+import { FindManyOptions, In, Between, Like } from 'typeorm';
+import { TypeOrmQueryHelperInput } from '../../common/types/data-table.types';
 
-type RequiredQueryType = DataTableBaseDto & Record<string, unknown>;
-
+// Campos que ignoramos al construir la cláusula WHERE
 const RESERVED_FIELDS = ['page', 'perPage', 'sort'];
 
 export function buildQueryOptions(
-  query: RequiredQueryType,
+  query: TypeOrmQueryHelperInput,
 ): { findOptions: FindManyOptions<any>; paginationOptions: IPaginationOptions } {
-  const findOptions: FindManyOptions<any> = {};
-  const where: Record<string, any> = {};
 
-  const paginationOptions: IPaginationOptions = {
-    page: query.page,
-    limit: query.perPage,
-  };
+  const findOptions: FindManyOptions<any> = { where: {}, order: {} };
 
+  // 1. ORDENACIÓN (ORDER BY)
   if (query.sort && query.sort.length > 0) {
     findOptions.order = query.sort.reduce((acc, item) => {
-      acc[item.id] = item.desc ? 'DESC' : 'ASC';
+      // Convierte [{ id: 'col', desc: true }] a { col: 'DESC' }
+      if (item?.id) { // Asegurarse de que el id exista
+        // Convierte [{ id: 'col', desc: true }] a { col: 'DESC' }
+        acc[item.id] = item.desc ? 'DESC' : 'ASC';
+      }
       return acc;
     }, {});
   }
 
+  // 2. FILTROS (WHERE)
   for (const [key, value] of Object.entries(query)) {
-    if (RESERVED_FIELDS.includes(key) || value === undefined || value === null || value === '') {
+    if (RESERVED_FIELDS.includes(key) || value === undefined || value === null) {
       continue;
     }
 
+    // A. Filtro de ARRAY (ej: status: ['active', 'inactive']) -> IN ('active', 'inactive')
     if (Array.isArray(value)) {
+      (findOptions.where!)[key] = In(value);
+      continue;
+    }
 
-      const filterValues = value as unknown as string[];
+    // B. Filtro de STRING
+    if (typeof value === 'string') {
 
-      if (filterValues.length === 2 && (key.toLowerCase().includes('date') || key.toLowerCase().includes('at'))) {
-        const startDate = new Date(parseInt(filterValues[0], 10));
-        const endDate = new Date(parseInt(filterValues[1], 10));
+      // B.1. Rango de Fechas (ej: createdAt: "175808...,175808...")
+      const isDateRange = (key.toLowerCase().includes('at') || key.toLowerCase().includes('date')) && value.includes(',');
 
-        where[key] = Between(startDate, endDate);
-      } else {
-        where[key] = In(filterValues);
+      if (isDateRange) {
+        const parts = value.split(',');
+        if (parts.length === 2) {
+          // Convertir timestamps de string a objetos Date
+          const startDate = new Date(parseInt(parts[0], 10));
+          const endDate = new Date(parseInt(parts[1], 10));
+          (findOptions.where!)[key] = Between(startDate, endDate);
+          continue;
+        }
       }
-    }
-    else if (typeof value === 'string') {
-      where[key] = Like(`%${value}%`);
-    }
-    else {
-      where[key] = value;
+
+      // B.2. Búsqueda de Texto (ej: name: "John") -> LIKE %John%
+      (findOptions.where!)[key] = Like(`%${value}%`);
+      continue;
     }
   }
 
-  if (Object.keys(where).length > 0) {
-    findOptions.where = where;
-  }
+  // 3. PAGINACIÓN
+  const paginationOptions: IPaginationOptions = {
+    limit: query.perPage,
+    page: query.page,
+  };
 
   return { findOptions, paginationOptions };
 }
