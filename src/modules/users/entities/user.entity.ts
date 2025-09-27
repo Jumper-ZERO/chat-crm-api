@@ -27,6 +27,9 @@ export class User {
   @Column({ unique: true })
   username: string;
 
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  avatar?: string;
+
   @Column()
   password: string;
 
