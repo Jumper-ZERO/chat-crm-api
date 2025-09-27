@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   paginate,
   Pagination,
 } from 'nestjs-typeorm-paginate';
-import { Repository, UpdateResult } from 'typeorm';
+import { FindManyOptions, Repository, UpdateResult } from 'typeorm';
 import { CreateContactDto } from './dto/create-contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { Contact } from './entities/contact.entity';
@@ -21,10 +21,15 @@ export class ContactsService {
   async findPaginated(query: ContactTableQueryDto): Promise<Pagination<Contact>> {
     const { findOptions, paginationOptions } = buildQueryOptions(query);
 
+    const optionsWithRelations: FindManyOptions<Contact> = {
+      ...(findOptions as FindManyOptions<Contact>),
+      relations: ['assignedTo'],
+    };
+
     return paginate<Contact>(
       this.contactRepo,
       paginationOptions,
-      findOptions,
+      optionsWithRelations,
     );
   }
 
@@ -38,17 +43,24 @@ export class ContactsService {
   }
 
   async findAll() {
-    return this.contactRepo.find()
+    return this.contactRepo.find({
+      relations: ['assignedTo']
+    })
   }
 
   async update(id: string, dto: UpdateContactDto): Promise<UpdateResult> {
+    console.log(dto)
     return await this.contactRepo.update(id, { ...dto, assignedTo: { id: dto.assignedTo } });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string) {
     const res = await this.contactRepo.softDelete({ id });
-    console.log('Deleting contact with ID:', id);
-    console.log(res);
+
+    if (res.affected === 0) {
+      throw new NotFoundException(`Contacto con id ${id} no encontrado`);
+    }
+
+    return { success: true, id }
   }
 
   findByPhone(phone: string): Promise<Contact | null> {
