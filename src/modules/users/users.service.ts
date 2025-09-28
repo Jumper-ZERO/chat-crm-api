@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { User } from 'src/modules/users/entities/user.entity';
 import { FindManyOptions, Like, Repository } from 'typeorm';
 import { UpdateResult } from 'typeorm/browser';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserSearchDto } from './dto/user-search.dto';
+import { UserTableQueryDto } from '../../common/schemas/user-table-query.schema';
+import { buildQueryOptions } from '../../lib/helpers/build-query-options.helper';
 import { Company } from '../companies/entities/company.entity';
 
 @Injectable()
@@ -14,6 +17,17 @@ export class UsersService {
     @InjectRepository(User)
     private readonly repo: Repository<User>,
   ) { }
+
+  async table(query: UserTableQueryDto): Promise<Pagination<User>> {
+    const { findOptions, paginationOptions } = buildQueryOptions(query);
+
+
+    return paginate<User>(
+      this.repo,
+      paginationOptions,
+      findOptions
+    );
+  }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const user = this.repo.create({

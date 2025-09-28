@@ -1,13 +1,13 @@
 import * as bcrypt from 'bcrypt';
-import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Company } from '../../companies/entities/company.entity.js';
 import { Contact } from '../../contacts/entities/contact.entity.js';
 
 export enum UserRole {
   ADMIN = 'admin',
   MANAGER = 'manager',
+  SUPPORT = 'support',
   AGENT = 'agent',
-  VIEWER = 'viewer',
 }
 
 @Entity('users')
@@ -17,6 +17,10 @@ export class User {
 
   @Column({ length: 255, nullable: true })
   firstName?: string;
+
+  @Index({ unique: true })
+  @Column({ type: 'varchar', nullable: false })
+  phone: string;
 
   @Column({ length: 255, nullable: true })
   lastName?: string;

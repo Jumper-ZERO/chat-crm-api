@@ -17,6 +17,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { type UserSearchDto, userSearchSchema } from './dto/user-search.dto';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import { userTableQuerySchema, type UserTableQueryDto } from '../../common/schemas/user-table-query.schema';
 
 @Controller('users')
 export class UsersController {
@@ -25,6 +26,12 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('table')
+  @UsePipes(new ZodValidationPipe(userTableQuerySchema))
+  getTable(@Body() query: UserTableQueryDto) {
+    return this.usersService.table(query);
   }
 
   @Get("search")
