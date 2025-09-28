@@ -1,5 +1,5 @@
 import { isUnique } from '@utils/validators';
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, MinLength } from "class-validator";
+import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, MinLength } from "class-validator";
 import { i18nValidationMessage as t } from "nestjs-i18n";
 import { UserRole } from "src/modules/users/entities/user.entity";
 import { IsInDatabase } from '../../../utils/validators/IsInDatabase';
@@ -15,9 +15,27 @@ export class CreateUserDto {
   username: string;
 
   @IsString()
-  @MinLength(8, {
-    message: t('validations.min', { campo: 'password', min: 8 }),
-  })
+  @IsOptional()
+  firstName?: string;
+
+  @IsString()
+  @IsOptional()
+  phone: string;
+
+  @IsString()
+  @IsOptional()
+  lastName?: string;
+
+  @IsString()
+  @IsOptional()
+  avatar?: string;
+
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @MinLength(8)
   password: string;
 
   @IsEnum(UserRole)

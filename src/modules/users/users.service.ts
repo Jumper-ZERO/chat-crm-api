@@ -67,8 +67,8 @@ export class UsersService {
     });
   }
 
-  update(id: string, updateUserDto: UpdateUserDto): Promise<UpdateResult> {
-    return this.repo.update(id, updateUserDto)
+  update(id: string, dto: UpdateUserDto): Promise<UpdateResult> {
+    return this.repo.update(id, { ...dto, company: { id: dto.companyId } })
   }
 
   async remove(id: string): Promise<void> {
