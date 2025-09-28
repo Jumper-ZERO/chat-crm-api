@@ -1,7 +1,7 @@
 import { isUnique } from '@utils/validators';
-import { IsBoolean, IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, MinLength } from "class-validator";
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsUUID, Matches, MinLength } from "class-validator";
 import { i18nValidationMessage as t } from "nestjs-i18n";
-import { UserRole } from "src/modules/users/entities/user.entity";
+import type { UserRole } from "src/modules/users/entities/user.entity";
 import { IsInDatabase } from '../../../utils/validators/IsInDatabase';
 import { Company } from '../../companies/entities/company.entity';
 
@@ -38,7 +38,7 @@ export class CreateUserDto {
   @MinLength(8)
   password: string;
 
-  @IsEnum(UserRole)
+  @IsString()
   role: UserRole
 
   @IsBoolean({ message: t('validations.invalid.boolean', { attr: 'isActive' }) })
