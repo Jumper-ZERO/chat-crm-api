@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Chat } from "../../chats/entities";
 import { User } from "../../users/entities/user.entity";
 import { ContactStatus } from "../contact.enum";
 
@@ -29,4 +30,7 @@ export class Contact {
   // Relation with User entity
   @ManyToOne(() => User, (user) => user.contacts, { nullable: true, onDelete: 'SET NULL' })
   assignedTo: User;
+
+  @ManyToOne(() => Chat, (chat) => chat.contact, { nullable: true, onDelete: 'SET NULL' })
+  chat: Chat
 }

@@ -1,14 +1,14 @@
-import { ChatSession } from "src/modules/chats/entities/chat-session.entity";
 import { User } from "src/modules/users/entities/user.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Chat } from "./chat.entity";
 
-@Entity('chat_messages')
-export class ChatMessage {
+@Entity('messages')
+export class Message {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => ChatSession, (session) => session.messages)
-  session: ChatSession;
+  @ManyToOne(() => Chat, (chat) => chat.messages)
+  session: Chat;
 
   @ManyToOne(() => User, { nullable: true })
   senderType: 'user' | 'client' | 'system';
@@ -30,4 +30,7 @@ export class ChatMessage {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn({ nullable: true })
+  deletedAt?: Date
 }

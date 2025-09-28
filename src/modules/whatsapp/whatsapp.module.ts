@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { WhatsAppConfigService } from './services/whatsapp-config.service';
 import { WhatsappService } from './whatsapp.service';
 import { WhatsAppConfigController, WhatsappController, WhatsappWebhookController } from './controllers';
-import { WhatsAppConfig, WhatsAppContact, WhatsAppMessage, WhatsAppTemplate } from './entities';
+import { WhatsAppConfig } from './entities';
 import { WhatsAppMessageFactory } from './factories/whatsapp-message.factory';
 import { WhatsAppConfigSubscriber } from './subscribers/whatsapp-config.subscriber';
 import { WhatsAppApiClient } from './whatsapp-api.client';
@@ -19,9 +19,6 @@ import { WhatsappGateway } from './whatsapp.gateway';
     }),
     TypeOrmModule.forFeature([
       WhatsAppConfig,
-      WhatsAppTemplate,
-      WhatsAppMessage,
-      WhatsAppContact,
     ]),
     HttpModule
   ],

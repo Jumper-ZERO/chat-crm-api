@@ -23,7 +23,6 @@ import { IsUniqueConstraint } from './utils/validators';
 // Modules
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './modules/chats/chats.module';
-import { ClientsModule } from './modules/clients/clients.module';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { UsersModule } from './modules/users/users.module';
@@ -37,7 +36,6 @@ import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
     TypeOrmModule.forRoot(databaseConfig),
     CacheModule.registerAsync(cacheConfig),
     UsersModule,
-    ClientsModule,
     ChatsModule,
     AuthModule,
     WhatsappModule,
