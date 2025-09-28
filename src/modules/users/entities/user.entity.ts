@@ -3,12 +3,7 @@ import { BeforeInsert, Column, CreateDateColumn, Entity, Index, JoinColumn, Many
 import { Company } from '../../companies/entities/company.entity.js';
 import { Contact } from '../../contacts/entities/contact.entity.js';
 
-export enum UserRole {
-  ADMIN = 'admin',
-  MANAGER = 'manager',
-  SUPPORT = 'support',
-  AGENT = 'agent',
-}
+export type UserRole = 'admin' | 'manager' | 'support' | 'agent';
 
 @Entity('users')
 export class User {
@@ -37,11 +32,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.AGENT,
-  })
+  @Column({ default: 'agent' })
   role: UserRole;
 
   @Column({ type: 'tinyint', default: 0, nullable: false })
