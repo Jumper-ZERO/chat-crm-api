@@ -9,7 +9,7 @@ export interface ChatMessageDto {
 
 // Estructura principal para la lista de Chats en el frontend
 export interface ChatUserDto {
-  id: number;
+  id: string;
   // Datos del Contacto
   fullName: string;
   phone: string;

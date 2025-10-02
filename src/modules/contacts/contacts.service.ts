@@ -5,7 +5,7 @@ import {
   Pagination,
 } from 'nestjs-typeorm-paginate';
 import { FindManyOptions, Repository, UpdateResult } from 'typeorm';
-import { CreateContactDto } from './dto/create-contact.dto';
+import { CreateContactDto } from './dto/contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { Contact } from './entities/contact.entity';
 import { ContactTableQueryDto } from '../../common/schemas/contact-table-query.schema';
@@ -34,10 +34,7 @@ export class ContactsService {
   }
 
   async create(dto: CreateContactDto): Promise<Contact> {
-    const contact = this.contactRepo.create({
-      ...dto,
-      assignedTo: { id: dto.assignedTo },
-    });
+    const contact = this.contactRepo.create(dto);
 
     return this.contactRepo.save(contact);
   }
@@ -49,8 +46,7 @@ export class ContactsService {
   }
 
   async update(id: string, dto: UpdateContactDto): Promise<UpdateResult> {
-    console.log(dto)
-    return await this.contactRepo.update(id, { ...dto, assignedTo: { id: dto.assignedTo } });
+    return await this.contactRepo.update(id, { ...dto });
   }
 
   async remove(id: string) {
@@ -63,9 +59,9 @@ export class ContactsService {
     return { success: true, id }
   }
 
-  findByPhone(phone: string): Promise<Contact | null> {
+  findByPhone(phoneNumber: string): Promise<Contact | null> {
     return this.contactRepo.findOne({
-      where: { phone },
+      where: { phoneNumber },
     });
   }
 }

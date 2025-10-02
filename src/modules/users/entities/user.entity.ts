@@ -1,9 +1,10 @@
 import * as bcrypt from 'bcrypt';
 import { BeforeInsert, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Chat } from '../../chats/entities/chat.entity.js';
 import { Company } from '../../companies/entities/company.entity.js';
-import { Contact } from '../../contacts/entities/contact.entity.js';
 
-export type UserRole = 'admin' | 'manager' | 'support' | 'agent';
+export type UserRole = 'admin' | 'supervisor' | 'support' | 'agent';
+export type UserStatue = 'online' | 'offline' | 'busy';
 
 @Entity('users')
 export class User {
@@ -11,14 +12,14 @@ export class User {
   id: string;
 
   @Column({ length: 255, nullable: true })
-  firstName?: string;
-
-  @Index({ unique: true })
-  @Column({ type: 'varchar', nullable: false })
-  phone: string;
+  firstNames?: string;
 
   @Column({ length: 255, nullable: true })
-  lastName?: string;
+  lastNames?: string;
+
+  @Index({ unique: true })
+  @Column({ type: 'varchar', nullable: true })
+  phoneNumber?: string;
 
   @Column({ length: 255, unique: true, nullable: true })
   email: string;
@@ -35,8 +36,11 @@ export class User {
   @Column({ default: 'agent' })
   role: UserRole;
 
-  @Column({ type: 'tinyint', default: 0, nullable: false })
-  isActive: boolean;
+  @Column({ default: 'offline' })
+  status: UserStatue;
+
+  @Column({ type: 'varchar', length: 512, nullable: true })
+  address?: string;
 
   @Column({ type: 'timestamp', nullable: true })
   lastLogin?: Date;
@@ -50,9 +54,8 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // Relation with Contact entity
-  @OneToMany(() => Contact, (contact) => contact.assignedTo)
-  contacts: Contact[];
+  @OneToMany(() => Chat, chat => chat.assignedAgent)
+  chats: Chat[];
 
   @ManyToOne(() => Company, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'companyId' })

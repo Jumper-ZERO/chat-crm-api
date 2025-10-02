@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
-import { CreateContactDto } from './dto/create-contact.dto';
+import { CreateContactDto } from './dto/contact.dto';
 import { UpdateContactDto } from './dto/update-contact.dto';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { type ContactTableQueryDto, contactTableQuerySchema } from '../../common/schemas/contact-table-query.schema';

@@ -1,5 +1,5 @@
-import { IsEnum, IsOptional, IsString, IsEmail, MaxLength } from 'class-validator';
-import { CompanyStatus } from '../entities/company.entity';
+import { IsOptional, IsString, IsEmail, MaxLength } from 'class-validator';
+import type { CompanyStatus } from '../entities/company.entity';
 
 export class CreateCompanyDto {
   @IsString()
@@ -21,7 +21,6 @@ export class CreateCompanyDto {
   address?: string;
 
   @IsOptional()
-  @IsEnum(CompanyStatus)
   status?: CompanyStatus;
 }
 

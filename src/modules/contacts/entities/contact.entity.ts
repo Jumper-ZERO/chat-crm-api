@@ -1,25 +1,42 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Chat } from "../../chats/entities";
-import { User } from "../../users/entities/user.entity";
-import { ContactStatus } from "../contact.enum";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Chat, Message } from "../../chats/entities";
+import { Company } from "../../companies/entities/company.entity";
+
+export type ContactStatus = 'new' | 'lead' | 'prospect' | 'client';
+export type ContactSource = 'whatsapp' | 'manual';
 
 @Entity('contacts')
 export class Contact {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ unique: true, nullable: true })
+  waId: string;
+
   @Column({ type: 'varchar', nullable: true })
   name: string;
 
   @Column({ type: 'varchar', nullable: true })
-  avatar: string;
+  profile: string;
 
   @Index({ unique: true })
   @Column({ type: 'varchar', nullable: false })
-  phone: string;
+  phoneNumber: string;
 
-  @Column({ type: 'enum', enum: ContactStatus, default: ContactStatus.NEW })
+  @Column({ nullable: true })
+  email: string;
+
+  @Column({ default: 'new' })
   status: ContactStatus;
+
+  @Column({ default: 'manual' })
+  source: ContactSource;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastInteractionAt: Date;
+
+  @Column('simple-array', { nullable: true })
+  tags: string[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -30,10 +47,12 @@ export class Contact {
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date
 
-  // Relation with User entity
-  @ManyToOne(() => User, (user) => user.contacts, { nullable: true, onDelete: 'SET NULL' })
-  assignedTo: User;
+  @ManyToOne(() => Company, (company) => company.contacts, { nullable: true, onDelete: 'SET NULL' })
+  company: Company;
 
-  @ManyToOne(() => Chat, (chat) => chat.contact, { nullable: true, onDelete: 'SET NULL' })
-  chat: Chat
+  @OneToMany(() => Chat, (chat) => chat.contact)
+  chats: Chat[]
+
+  @OneToMany(() => Message, message => message.contact)
+  messages: Message[];
 }

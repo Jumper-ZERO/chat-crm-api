@@ -42,8 +42,8 @@ export class UsersService {
     const findOptions: FindManyOptions<User> = {
       where: [
         { username: Like(`%${q}%`) },
-        { firstName: Like(`%${q}%`) },
-        { lastName: Like(`%${q}%`) },
+        { firstNames: Like(`%${q}%`) },
+        { lastNames: Like(`%${q}%`) },
       ],
       take: limit,
       order: { username: 'ASC' }

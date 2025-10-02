@@ -8,13 +8,10 @@ import {
   DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
+import { Contact } from '../../contacts/entities/contact.entity';
 import { WhatsAppConfig } from '../../whatsapp/entities';
 
-export enum CompanyStatus {
-  ACTIVE = 'active',
-  INACTIVE = 'inactive',
-  SUSPENDED = 'suspended',
-}
+export type CompanyStatus = 'active' | 'inactive' | 'suspended';
 
 @Entity('companies')
 export class Company {
@@ -30,24 +27,21 @@ export class Company {
   @Column({ length: 50, nullable: true })
   @IsPhoneNumber()
   @IsOptional()
-  phone?: string;
+  phoneNumber?: string;
 
   @Column({ type: 'text', nullable: true })
   address?: string;
 
-  @Column({
-    type: 'enum',
-    enum: CompanyStatus,
-    default: CompanyStatus.ACTIVE,
-  })
+  @Column({ default: 'active' })
   status: CompanyStatus;
 
   @OneToMany(
     () => WhatsAppConfig,
-    whatsappConfig => whatsappConfig.company,
-    { cascade: ['insert', 'update', 'soft-remove'] }
-  )
+    whatsappConfig => whatsappConfig.company, { cascade: ['insert', 'update', 'soft-remove'] })
   whatsAppConfigs: WhatsAppConfig[];
+
+  @OneToMany(() => Contact, contact => contact.company)
+  contacts: Contact[];
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deletedAt?: Date;

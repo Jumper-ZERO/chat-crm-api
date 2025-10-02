@@ -15,7 +15,7 @@ export class ChatsService {
   ) { }
 
   async addMessage(
-    chatId: number,
+    chatId: string,
     payload: {
       from: string;
       body: string;
@@ -26,26 +26,24 @@ export class ChatsService {
     const chat = await this.chatRepo.findOneOrFail({ where: { id: chatId } });
 
     const message = this.messageRepo.create({
-      session: chat,
-      // Usando el string literal si corregiste la entidad Message (ver NOTA arriba)
+      chat: chat,
       senderType: payload.direction === 'incoming' ? 'client' : 'user',
-      content: payload.body,
-      messageType: payload.mediaUrl ? 'image' : 'text',
+      body: payload.body,
       mediaUrl: payload.mediaUrl,
-      sentAt: new Date(),
+      type: payload.mediaUrl ? 'image' : 'text',
     });
 
     return this.messageRepo.save(message);
   }
 
-  async findOrCreateByPhone(phone: string): Promise<Chat> {
+  async findOrCreateByPhone(phoneNumber: string): Promise<Chat> {
     let contact = await this.contactRepo.findOne({
-      where: { phone },
+      where: { phoneNumber },
       relations: ['chat'],
     });
 
     if (!contact) {
-      contact = this.contactRepo.create({ phone });
+      contact = this.contactRepo.create({ phoneNumber });
       await this.contactRepo.save(contact);
     }
 
@@ -89,8 +87,8 @@ export class ChatsService {
 
       // Mapear el último mensaje o proporcionar un valor por defecto
       const mappedLastMessage: ChatMessageDto = lastMessage ? {
-        sender: lastMessage.senderType === 'user' ? 'You' : 'Client', // 'client' es el contacto de WhatsApp
-        content: lastMessage.content,
+        sender: lastMessage.senderType === 'user' ? 'You' : 'Client', // 'client' es el contacto
+        content: lastMessage.body,
         timestamp: lastMessage.createdAt,
       } : {
         sender: 'System',
@@ -101,13 +99,13 @@ export class ChatsService {
       return {
         id: chat.id,
         // Mapeo de datos del Contacto (Contact)
-        fullName: chat.contact?.name || chat.contact?.phone || `Chat #${chat.id}`,
-        phone: chat.contact?.phone || 'N/A',
-        avatar: chat.contact.avatar, // Usar un valor por defecto o cargar el real si existe
+        fullName: chat.contact?.name || chat.contact?.phoneNumber || `Chat #${chat.id}`,
+        phone: chat.contact?.phoneNumber || 'N/A',
+        avatar: chat.contact.profile, // Usar un valor por defecto o cargar el real si existe
 
         // Mapeo de datos del Chat
         status: chat.status,
-        title: chat.status === 'open' ? 'Active' : chat.status === 'transferred' ? 'In Transfer' : 'Closed',
+        title: chat.status === 'open' ? 'Active' : chat.status === 'inProgress' ? 'In Transfer' : 'Closed',
 
         // Último Mensaje
         lastMessage: mappedLastMessage,
@@ -115,9 +113,9 @@ export class ChatsService {
     });
   }
 
-  async getMessagesByChatId(chatId: number): Promise<Message[]> {
+  async getMessagesByChatId(chatId: string): Promise<Message[]> {
     return this.messageRepo.find({
-      where: { session: { id: chatId } },
+      where: { chat: { id: chatId } },
       order: { sentAt: 'DESC' }, // Ordenar por fecha de envío descendente (los más nuevos primero)
       // relations: ['senderType'], // Si 'senderType' sigue siendo una relación a User
     });

@@ -1,10 +1,12 @@
-import { PartialType } from "@nestjs/mapped-types";
+import { createZodDto } from "nestjs-zod";
+import { MessageSchema } from "../schemas/message.schema";
 
-export class CreateChatMessageDto {
-  clientId: number;
-  sessionId: number;
-  content: string;
-  timestamp?: Date;
-}
+export class CreateMessageDto extends createZodDto(
+  MessageSchema.omit({ id: true, createdAt: true })
+) { }
 
-export class UpdateChatMessageDto extends PartialType(CreateChatMessageDto) { }
+export class UpdateMessageDto extends createZodDto(
+  MessageSchema.partial().omit({ id: true, createdAt: true })
+) { }
+
+export class MessageResponseDto extends createZodDto(MessageSchema) { }

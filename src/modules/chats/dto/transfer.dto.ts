@@ -1,7 +1,8 @@
-import { PartialType } from "@nestjs/mapped-types";
+import { createZodDto } from "nestjs-zod";
+import { TransferSchema } from "../schemas/transfer.schema";
 
-export class TransferDto {
-  transferredAt?: Date;
-}
+export class TransferDto extends createZodDto(
+  TransferSchema.omit({ id: true, createdAt: true })
+) { }
 
-export class UpdateChatDto extends PartialType(TransferDto) { }
+export class TransferResponseDto extends createZodDto(TransferSchema) { }

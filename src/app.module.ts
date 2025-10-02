@@ -1,12 +1,14 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { I18nModule } from 'nestjs-i18n';
 import { LoggerModule } from 'nestjs-pino';
 
 // Configurations
+import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { cacheConfig } from './config/cache.config';
 import { databaseConfig } from './config/database.config';
 import { i18nConfig } from './config/i18n.config';
@@ -43,7 +45,16 @@ import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
     CompaniesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, IsUniqueConstraint],
+  providers: [AppService, IsUniqueConstraint,
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ZodSerializerInterceptor
+    }
+  ],
 })
 
 export class AppModule { }

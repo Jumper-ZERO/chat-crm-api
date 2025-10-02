@@ -1,16 +1,12 @@
-import { PartialType } from "@nestjs/mapped-types";
-import { IsOptional, IsUUID } from "class-validator";
-import type { ChatStatus } from "../entities/chat.entity";
+import { createZodDto } from "nestjs-zod";
+import { ChatSchema } from "../schemas/chat.schema";
 
-export class CreateChatDto {
-  @IsUUID()
-  contactId: string;
+export class CreateChatDto extends createZodDto(
+  ChatSchema.omit({ id: true, lastMessageId: true, createdAt: true })
+) { }
 
-  @IsUUID()
-  assignedUserId: string;
+export class UpdateChatDto extends createZodDto(
+  ChatSchema.partial().omit({ id: true, createdAt: true })
+) { }
 
-  @IsOptional()
-  status: ChatStatus;
-}
-
-export class UpdateChatDto extends PartialType(CreateChatDto) { }
+export class ChatResponseDto extends createZodDto(ChatSchema) { }

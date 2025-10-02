@@ -1,11 +1,11 @@
 import { Message } from "src/modules/chats/entities/message.entity";
-import { Transfer } from "src/modules/chats/entities/transfer.entity";
 import { User } from "src/modules/users/entities/user.entity";
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -13,30 +13,30 @@ import {
 } from "typeorm";
 import { Contact } from "../../contacts/entities/contact.entity";
 
-export type ChatStatus = 'open' | 'transferred' | 'closed';
+export type ChatStatus = 'open' | 'inProgress' | 'closed' | 'archived';
+export type ChatPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type ChatChannel = 'whatsapp' | 'telegram' | 'messenger' | 'sms' | 'email';
 
 @Entity('chats')
 export class Chat {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @ManyToOne(() => Contact, (contact) => contact.chat)
-  contact: Contact;
-
-  @ManyToOne(() => User, { nullable: true })
-  assignedUser: User;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ default: 'open' })
   status: ChatStatus;
 
+  @ManyToOne(() => Message, { nullable: true, eager: true })
+  @JoinColumn({ name: 'lastMessageId' })
+  lastMessage?: Message;
+
+  @Column({ default: 'low' })
+  priority: ChatPriority;
+
+  @Column({ default: 'whatsapp' })
+  channel: string;
+
   @Column({ type: 'datetime', nullable: true })
   endedAt: Date;
-
-  @OneToMany(() => Message, (msg) => msg.session)
-  messages: Message[];
-
-  @OneToMany(() => Transfer, (t) => t.chat)
-  transfers: Transfer[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -46,4 +46,13 @@ export class Chat {
 
   @DeleteDateColumn({ nullable: true })
   deletedAt?: Date
+
+  @ManyToOne(() => Contact, (contact) => contact.chats, { nullable: true, onDelete: 'SET NULL' })
+  contact: Contact;
+
+  @ManyToOne(() => User, { nullable: true })
+  assignedAgent: User;
+
+  @OneToMany(() => Message, (message) => message.chat)
+  messages: Message[];
 }
