@@ -11,6 +11,9 @@ import { WhatsAppMessageFactory } from './factories/whatsapp-message.factory';
 import { WhatsAppConfigSubscriber } from './subscribers/whatsapp-config.subscriber';
 import { WhatsAppApiClient } from './whatsapp-api.client';
 import { WhatsappGateway } from './whatsapp.gateway';
+import { ChatsModule } from '../chats/chats.module';
+import { ChatsService } from '../chats/chats.service';
+import { Chat } from '../chats/entities';
 
 @Module({
   imports: [
@@ -19,8 +22,10 @@ import { WhatsappGateway } from './whatsapp.gateway';
     }),
     TypeOrmModule.forFeature([
       WhatsAppConfig,
+      Chat
     ]),
-    HttpModule
+    HttpModule,
+    ChatsModule,
   ],
   controllers: [WhatsappController, WhatsappWebhookController, WhatsAppConfigController],
   providers: [
@@ -30,6 +35,7 @@ import { WhatsappGateway } from './whatsapp.gateway';
     WhatsAppConfigSubscriber,
     WhatsAppApiClient,
     WhatsAppMessageFactory,
+    ChatsService,
   ],
   exports: [WhatsAppConfigService, WhatsAppApiClient],
 })

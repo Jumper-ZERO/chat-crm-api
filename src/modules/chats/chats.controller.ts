@@ -11,9 +11,9 @@ export class ChatsController {
     return this.service.create(dto);
   }
 
-  @Get()
+  @Get('/list')
   findAll() {
-    return this.service.findAll();
+    return this.service.getChatList();
   }
 
   @Get(':id')

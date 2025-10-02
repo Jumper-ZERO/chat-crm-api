@@ -11,6 +11,9 @@ export class Contact {
   @Column({ type: 'varchar', nullable: true })
   name: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  avatar: string;
+
   @Index({ unique: true })
   @Column({ type: 'varchar', nullable: false })
   phone: string;

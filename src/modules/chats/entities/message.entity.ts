@@ -1,4 +1,3 @@
-import { User } from "src/modules/users/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Chat } from "./chat.entity";
 
@@ -10,7 +9,7 @@ export class Message {
   @ManyToOne(() => Chat, (chat) => chat.messages)
   session: Chat;
 
-  @ManyToOne(() => User, { nullable: true })
+  @Column({ type: 'enum', enum: ['user', 'client', 'system'], nullable: true })
   senderType: 'user' | 'client' | 'system';
 
   @Column('text')
