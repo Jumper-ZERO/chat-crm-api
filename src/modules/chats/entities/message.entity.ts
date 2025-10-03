@@ -3,17 +3,17 @@ import { Chat } from "./chat.entity";
 import { Contact } from "../../contacts/entities/contact.entity";
 import { User } from "../../users/entities/user.entity";
 
-export type MessageType = 'text' | 'image' | 'file';
+export type MessageType = 'text' | 'image' | 'file' | 'audio' | 'video' | 'document';
 export type MessageSenderType = 'user' | 'client' | 'system';
-export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed';
+export type MessageStatus = 'sent' | 'delivered' | 'received' | 'read' | 'failed';
 export type MessageDirection = 'in' | 'out';
 
 @Entity('messages')
 export class Message {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   waMessageId: string;
 
   @Column({ nullable: true })
@@ -32,7 +32,7 @@ export class Message {
   mediaUrl: string;
 
   @Column({ default: 'sent' })
-  status: string;
+  status: MessageStatus;
 
   @Column({ default: 'in' })
   direction: MessageDirection;

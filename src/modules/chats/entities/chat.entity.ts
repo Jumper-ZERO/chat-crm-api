@@ -13,7 +13,7 @@ import {
 } from "typeorm";
 import { Contact } from "../../contacts/entities/contact.entity";
 
-export type ChatStatus = 'open' | 'inProgress' | 'closed' | 'archived';
+export type ChatStatus = 'open' | 'pending' | 'closed' | 'archived';
 export type ChatPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type ChatChannel = 'whatsapp' | 'telegram' | 'messenger' | 'sms' | 'email';
 

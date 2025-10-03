@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { WebhookService } from './services/webhook.service';
 import { WhatsAppConfigService } from './services/whatsapp-config.service';
 import { WhatsappService } from './whatsapp.service';
 import { WhatsAppConfigController, WhatsappController, WhatsappWebhookController } from './controllers';
@@ -11,9 +12,12 @@ import { WhatsAppMessageFactory } from './factories/whatsapp-message.factory';
 import { WhatsAppConfigSubscriber } from './subscribers/whatsapp-config.subscriber';
 import { WhatsAppApiClient } from './whatsapp-api.client';
 import { WhatsappGateway } from './whatsapp.gateway';
-import { ChatsModule } from '../chats/chats.module';
 import { ChatsService } from '../chats/chats.service';
-import { Chat } from '../chats/entities';
+import { Chat, Message } from '../chats/entities';
+import { ContactsService } from '../contacts/contacts.service';
+import { Contact } from '../contacts/entities/contact.entity';
+import { User } from '../users/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Module({
   imports: [
@@ -21,14 +25,17 @@ import { Chat } from '../chats/entities';
       isGlobal: true,
     }),
     TypeOrmModule.forFeature([
+      Message,
+      Contact,
+      User,
       WhatsAppConfig,
       Chat
     ]),
     HttpModule,
-    ChatsModule,
   ],
   controllers: [WhatsappController, WhatsappWebhookController, WhatsAppConfigController],
   providers: [
+    WebhookService,
     WhatsappService,
     WhatsAppConfigService,
     WhatsappGateway,
@@ -36,6 +43,8 @@ import { Chat } from '../chats/entities';
     WhatsAppApiClient,
     WhatsAppMessageFactory,
     ChatsService,
+    ContactsService,
+    UsersService
   ],
   exports: [WhatsAppConfigService, WhatsAppApiClient],
 })

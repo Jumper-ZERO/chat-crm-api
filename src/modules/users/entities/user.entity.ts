@@ -3,7 +3,7 @@ import { BeforeInsert, Column, CreateDateColumn, Entity, Index, JoinColumn, Many
 import { Chat } from '../../chats/entities/chat.entity.js';
 import { Company } from '../../companies/entities/company.entity.js';
 
-export type UserRole = 'admin' | 'supervisor' | 'support' | 'agent';
+export type UserRole = 'admin' | 'supervisor' | 'support' | 'agent' | 'system';
 export type UserStatue = 'online' | 'offline' | 'busy';
 
 @Entity('users')

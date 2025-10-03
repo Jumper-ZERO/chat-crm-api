@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
-import { CreateContactDto } from './dto/contact.dto';
-import { UpdateContactDto } from './dto/update-contact.dto';
+import { CreateContactDto, UpdateContactDto } from './dto/contact.dto';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { type ContactTableQueryDto, contactTableQuerySchema } from '../../common/schemas/contact-table-query.schema';
 
@@ -17,7 +16,6 @@ export class ContactsController {
   @Post('table')
   @UsePipes(new ZodValidationPipe(contactTableQuerySchema))
   getTable(@Body() query: ContactTableQueryDto) {
-    console.log(query)
     return this.contactService.findPaginated(query);
   }
 
@@ -33,7 +31,6 @@ export class ContactsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
-    updateContactDto.id = id
     return this.contactService.update(id, updateContactDto);
   }
 

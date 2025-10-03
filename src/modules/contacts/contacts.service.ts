@@ -5,8 +5,7 @@ import {
   Pagination,
 } from 'nestjs-typeorm-paginate';
 import { FindManyOptions, Repository, UpdateResult } from 'typeorm';
-import { CreateContactDto } from './dto/contact.dto';
-import { UpdateContactDto } from './dto/update-contact.dto';
+import { CreateContactDto, UpdateContactDto } from './dto/contact.dto';
 import { Contact } from './entities/contact.entity';
 import { ContactTableQueryDto } from '../../common/schemas/contact-table-query.schema';
 import { buildQueryOptions } from '../../lib/helpers/build-query-options.helper';
@@ -22,8 +21,7 @@ export class ContactsService {
     const { findOptions, paginationOptions } = buildQueryOptions(query);
 
     const optionsWithRelations: FindManyOptions<Contact> = {
-      ...(findOptions as FindManyOptions<Contact>),
-      relations: ['assignedTo'],
+      ...(findOptions as FindManyOptions<Contact>)
     };
 
     return paginate<Contact>(
@@ -40,9 +38,7 @@ export class ContactsService {
   }
 
   async findAll() {
-    return this.contactRepo.find({
-      relations: ['assignedTo']
-    })
+    return this.contactRepo.find()
   }
 
   async update(id: string, dto: UpdateContactDto): Promise<UpdateResult> {
@@ -57,6 +53,24 @@ export class ContactsService {
     }
 
     return { success: true, id }
+  }
+
+  async findOrCreateByPhone(phoneNumber: string, companyId: string): Promise<Contact> {
+    return this.contactRepo.findOne({
+      where: { phoneNumber },
+    }).then(async contact => {
+      if (!contact) {
+        const newContact = this.contactRepo.create({
+          phoneNumber,
+          source: 'whatsapp',
+          company: { id: companyId },
+          waId: phoneNumber,
+          name: 'Desconocido',
+        });
+        return await this.contactRepo.save(newContact);
+      }
+      return contact;
+    });
   }
 
   findByPhone(phoneNumber: string): Promise<Contact | null> {

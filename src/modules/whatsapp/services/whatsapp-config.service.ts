@@ -60,7 +60,8 @@ export class WhatsAppConfigService {
 
   async findByBusinessId(businessId: string): Promise<WhatsAppConfig> {
     const config = await this.configRepository.findOne({
-      where: { businessId, isActive: true }
+      where: { businessId, isActive: true },
+      relations: ['company'],
     });
 
     if (!config) throw new WhatsAppConfigNotFoundException();

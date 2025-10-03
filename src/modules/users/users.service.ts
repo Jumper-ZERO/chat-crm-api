@@ -9,6 +9,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserSearchDto } from './dto/user-search.dto';
 import { UserTableQueryDto } from '../../common/schemas/user-table-query.schema';
 import { buildQueryOptions } from '../../lib/helpers/build-query-options.helper';
+import { Chat } from '../chats/entities';
 import { Company } from '../companies/entities/company.entity';
 
 @Injectable()
@@ -16,6 +17,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly repo: Repository<User>,
+    @InjectRepository(Chat)
+    private readonly chatRepo: Repository<Chat>,
   ) { }
 
   async table(query: UserTableQueryDto): Promise<Pagination<User>> {
@@ -58,6 +61,56 @@ export class UsersService {
 
   findOne(id: string): Promise<User | null> {
     return this.repo.findOne({ where: { id } });
+  }
+
+  async findOrCreateSystemUser(companyId: string): Promise<User> {
+    const existing = await this.repo.findOne({ where: { role: 'system', company: { id: companyId } } });
+
+    if (existing) return existing;
+
+    const created = this.repo.create({
+      role: 'system',
+      username: 'System',
+      password: "password", // Will be hashed before insert
+      status: 'online',
+      company: { id: companyId },
+    });
+
+    return this.repo.save(created);
+  }
+
+  async findAvailableAgent(companyId: string): Promise<User> {
+    const agents = await this.repo.find({
+      where: {
+        company: { id: companyId },
+        role: 'agent',
+        status: 'online',
+      },
+      relations: ['company'],
+    });
+
+    if (agents.length === 0) {
+      return this.findOrCreateSystemUser(companyId);
+    }
+
+    const agentsWithLoad = await Promise.all(
+      agents.map(async (agent) => {
+        const activeChats = await this.chatRepo.count({
+          where: { assignedAgent: { id: agent.id }, status: 'open' },
+        });
+        return { agent, activeChats };
+      }),
+    );
+
+    agentsWithLoad.sort((a, b) => a.activeChats - b.activeChats);
+    const bestAgent = agentsWithLoad[0].agent;
+
+    return bestAgent;
+  }
+
+  async getAgent() {
+    const agent = await this.repo.findOne({ where: { status: 'online' } });
+    if (agent) return agent;
   }
 
   findByUsername(username: string): Promise<User | null> {
