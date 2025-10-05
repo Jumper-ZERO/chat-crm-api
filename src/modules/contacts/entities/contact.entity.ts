@@ -14,6 +14,15 @@ export class Contact {
   waId: string;
 
   @Column({ type: 'varchar', nullable: true })
+  firstNames: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  lastNames: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  username: string;
+
+  @Column({ type: 'varchar', nullable: true })
   name: string;
 
   @Column({ type: 'varchar', nullable: true })
