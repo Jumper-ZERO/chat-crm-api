@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ChatsService } from './chats.service';
-import { CreateChatDto, UpdateChatDto } from './dto/chat.dto';
+import { ChatsService } from '../chats.service';
+import { CreateChatDto, UpdateChatDto } from '../dto/chat.dto';
 
 @Controller('chats')
 export class ChatsController {
@@ -13,7 +13,17 @@ export class ChatsController {
 
   @Get('/list')
   findAll() {
-    return this.service.getChatList();
+    return this.service.getChats();
+  }
+
+  @Get('/list/test')
+  findAllTest() {
+    return this.service.getChats();
+  }
+
+  @Get(':id/messages')
+  findMessages(@Param('id') id: string) {
+    return this.service.getChatMessages(id);
   }
 
   @Get(':id')
