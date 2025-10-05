@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { WhatsappNotification, WhatsappNotificationMessage } from "@daweto/whatsapp-api-types";
+import { WhatsappNotification, WhatsappNotificationContact, WhatsappNotificationMessage } from "@daweto/whatsapp-api-types";
 import { PinoLogger } from "nestjs-pino";
 import { Repository } from "typeorm";
 import { WhatsAppConfigService } from "./whatsapp-config.service";
@@ -26,6 +26,7 @@ export class WebhookService {
 
   async handleIncomingMessage(payload: WhatsappNotification) {
     const { entry, object } = payload
+    this.logger.debug(`Received webhook: \n${JSON.stringify(payload, null, 2)}`);
     if (object !== 'whatsapp_business_account') return;
 
     for (const data of entry) {
@@ -35,13 +36,15 @@ export class WebhookService {
 
       for (const change of data.changes ?? []) {
         for (const message of change.value.messages ?? []) {
-          void this.processMessage(message, company.id);
+          const senderWaId = message.from;
+          const contact = change.value.contacts?.find(c => c.wa_id === senderWaId);
+          void this.processMessage(message, contact, company.id);
         }
       }
     }
   }
 
-  async processMessage(message: WhatsappNotificationMessage, companyId: string) {
+  async processMessage(message: WhatsappNotificationMessage, contact: WhatsappNotificationContact, companyId: string) {
     const { from: phoneNumber, type } = message;
     const contact = await this.contactService.findOrCreateByPhone(phoneNumber, companyId);
     const agent = await this.userService.findAvailableAgent(companyId);
