@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto, UpdateContactDto } from './dto/contact.dto';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
@@ -17,6 +17,11 @@ export class ContactsController {
   @UsePipes(new ZodValidationPipe(contactTableQuerySchema))
   getTable(@Body() query: ContactTableQueryDto) {
     return this.contactService.findPaginated(query);
+  }
+
+  @Get('/search')
+  search(@Query('q') q: string) {
+    return this.contactService.search(q);
   }
 
   @Get()

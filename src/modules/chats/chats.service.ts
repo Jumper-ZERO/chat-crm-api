@@ -17,6 +17,13 @@ export class ChatsService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
   ) { }
 
+  async getChatMessages(chatId: string): Promise<Message[]> {
+    return this.messageRepo.find({
+      where: { chat: { id: chatId } },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async addMessage(
     chatId: string,
     payload: CreateMessageDto,
@@ -54,6 +61,21 @@ export class ChatsService {
     });
 
     return await this.chatRepo.save(chat);
+  }
+
+  async getChats() {
+    const chats = await this.chatRepo.find({
+      relations: {
+        contact: true,
+        lastMessage: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+      take: 20,
+    })
+
+    return chats;
   }
 
   async getChatList(): Promise<ChatUserDto[]> {
@@ -110,8 +132,9 @@ export class ChatsService {
     });
   }
 
-  create(_dto: CreateChatDto) {
-    return 'This action adds a new chat';
+  create(dto: CreateChatDto) {
+    const chat = this.chatRepo.save(dto);
+    return chat;
   }
 
   findAll() {

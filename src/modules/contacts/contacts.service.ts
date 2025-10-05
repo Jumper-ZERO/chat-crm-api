@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { WhatsappNotificationContact } from '@daweto/whatsapp-api-types';
 import {
   paginate,
   Pagination,
 } from 'nestjs-typeorm-paginate';
-import { FindManyOptions, Repository, UpdateResult } from 'typeorm';
+import { FindManyOptions, Like, Repository, UpdateResult } from 'typeorm';
 import { CreateContactDto, UpdateContactDto } from './dto/contact.dto';
 import { Contact } from './entities/contact.entity';
 import { ContactTableQueryDto } from '../../common/schemas/contact-table-query.schema';
@@ -31,6 +32,23 @@ export class ContactsService {
     );
   }
 
+  async search(q: string = '', limit: number = 10): Promise<Contact[]> {
+    const findOptions: FindManyOptions<Contact> = {
+      where: [
+        { name: Like(`%${q}%`) }, // !This will be removed
+        { username: Like(`%${q}%`) },
+        { firstNames: Like(`%${q}%`) },
+        { lastNames: Like(`%${q}%`) },
+        { phoneNumber: Like(`%${q}%`) },
+        { email: Like(`%${q}%`) },
+      ],
+      take: limit,
+      order: { name: 'ASC' }
+    };
+
+    return this.contactRepo.find(findOptions);
+  }
+
   async create(dto: CreateContactDto): Promise<Contact> {
     const contact = this.contactRepo.create(dto);
 
@@ -55,7 +73,7 @@ export class ContactsService {
     return { success: true, id }
   }
 
-  async findOrCreateByPhone(phoneNumber: string, companyId: string): Promise<Contact> {
+  async findOrCreateByPhone(phoneNumber: string, dto: { contact: WhatsappNotificationContact, companyId: string }): Promise<Contact> {
     return this.contactRepo.findOne({
       where: { phoneNumber },
     }).then(async contact => {
@@ -63,9 +81,10 @@ export class ContactsService {
         const newContact = this.contactRepo.create({
           phoneNumber,
           source: 'whatsapp',
-          company: { id: companyId },
+          company: { id: dto.companyId },
           waId: phoneNumber,
-          name: 'Desconocido',
+          name: dto.contact?.profile?.name || 'Unknown', // !This will be removed
+          username: dto.contact?.profile?.name || 'Unknown',
         });
         return await this.contactRepo.save(newContact);
       }
