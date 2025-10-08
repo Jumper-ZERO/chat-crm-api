@@ -44,11 +44,25 @@ export class WebhookService {
     }
   }
 
-  async processMessage(message: WhatsappNotificationMessage, contact: WhatsappNotificationContact, companyId: string) {
+  async processMessage(
+    message: WhatsappNotificationMessage,
+    notifyContact: WhatsappNotificationContact | undefined,
+    companyId: string
+  ) {
     const { from: phoneNumber, type } = message;
-    const contact = await this.contactService.findOrCreateByPhone(phoneNumber, companyId);
+
+    const contact = await this.contactService.findOrCreateByPhone(
+      phoneNumber,
+      companyId,
+      notifyContact
+    );
+
     const agent = await this.userService.findAvailableAgent(companyId);
-    const chat = await this.chatService.findOrCreateByContact(agent.id, contact.id, agent.role === 'system');
+    const chat = await this.chatService.findOrCreateByContact(
+      agent.id,
+      contact.id,
+      agent.role === 'system'
+    );
 
     let savedMsg: Message | null = null;
 
@@ -65,7 +79,6 @@ export class WebhookService {
       case 'text':
         if (message.text?.body) {
           msg.body = message.text.body;
-
           this.logger.debug(`Saving message from ${phoneNumber}: ${msg.body}`);
           savedMsg = await this.messageRepo.save(msg);
 

@@ -6,6 +6,7 @@ export type ContactStatus = 'new' | 'lead' | 'prospect' | 'client';
 export type ContactSource = 'whatsapp' | 'manual';
 
 @Entity('contacts')
+@Index(['phoneNumber', 'company'], { unique: true })
 export class Contact {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -23,12 +24,8 @@ export class Contact {
   username: string;
 
   @Column({ type: 'varchar', nullable: true })
-  name: string;
-
-  @Column({ type: 'varchar', nullable: true })
   profile: string;
 
-  @Index({ unique: true })
   @Column({ type: 'varchar', nullable: false })
   phoneNumber: string;
 

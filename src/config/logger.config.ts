@@ -1,3 +1,5 @@
+import { IncomingMessage } from "http";
+
 export const loggerConfig = {
   pinoHttp: {
     level: 'debug',
@@ -11,5 +13,8 @@ export const loggerConfig = {
         messageFormat: '[Chat Crm] {level} [{context}] {msg}',
       },
     },
+    customProps: (req: IncomingMessage) => ({
+      context: `${req.method} ${req.url}`,
+    }),
   },
 };

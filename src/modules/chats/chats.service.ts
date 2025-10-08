@@ -110,7 +110,7 @@ export class ChatsService {
       return {
         id: chat.id,
         // Mapeo de datos del Contacto (Contact)
-        fullName: chat.contact?.name || chat.contact?.phoneNumber || `Chat #${chat.id}`,
+        fullName: chat.contact?.username || chat.contact?.phoneNumber || `Chat #${chat.id}`,
         phone: chat.contact?.phoneNumber || 'N/A',
         avatar: chat.contact.profile, // Usar un valor por defecto o cargar el real si existe
 

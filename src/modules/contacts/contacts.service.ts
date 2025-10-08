@@ -35,7 +35,6 @@ export class ContactsService {
   async search(q: string = '', limit: number = 10): Promise<Contact[]> {
     const findOptions: FindManyOptions<Contact> = {
       where: [
-        { name: Like(`%${q}%`) }, // !This will be removed
         { username: Like(`%${q}%`) },
         { firstNames: Like(`%${q}%`) },
         { lastNames: Like(`%${q}%`) },
@@ -43,7 +42,7 @@ export class ContactsService {
         { email: Like(`%${q}%`) },
       ],
       take: limit,
-      order: { name: 'ASC' }
+      order: { username: 'ASC' }
     };
 
     return this.contactRepo.find(findOptions);
@@ -73,23 +72,31 @@ export class ContactsService {
     return { success: true, id }
   }
 
-  async findOrCreateByPhone(phoneNumber: string, dto: { contact: WhatsappNotificationContact, companyId: string }): Promise<Contact> {
-    return this.contactRepo.findOne({
-      where: { phoneNumber },
-    }).then(async contact => {
-      if (!contact) {
-        const newContact = this.contactRepo.create({
-          phoneNumber,
-          source: 'whatsapp',
-          company: { id: dto.companyId },
-          waId: phoneNumber,
-          name: dto.contact?.profile?.name || 'Unknown', // !This will be removed
-          username: dto.contact?.profile?.name || 'Unknown',
-        });
-        return await this.contactRepo.save(newContact);
+  async findOrCreateByPhone(
+    phoneNumber: string,
+    companyId: string,
+    waProfile?: WhatsappNotificationContact
+  ): Promise<Contact> {
+    let contact = await this.contactRepo.findOne({
+      where: {
+        phoneNumber,
+        company: { id: companyId }
       }
-      return contact;
     });
+
+    if (!contact) {
+      const newContact = this.contactRepo.create({
+        phoneNumber,
+        waId: phoneNumber,
+        source: 'whatsapp',
+        company: { id: companyId },
+        username: waProfile?.profile?.name || 'Unknown',
+      })
+
+      contact = await this.contactRepo.save(newContact);
+    }
+
+    return contact;
   }
 
   findByPhone(phoneNumber: string): Promise<Contact | null> {
