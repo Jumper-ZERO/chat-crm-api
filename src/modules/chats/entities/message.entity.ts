@@ -29,7 +29,7 @@ export class Message {
   type: MessageType;
 
   @Column({ nullable: true })
-  mediaUrl: string;
+  mediaUrl?: string;
 
   @Column({ default: 'sent' })
   status: MessageStatus;
