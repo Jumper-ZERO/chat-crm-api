@@ -16,11 +16,6 @@ export class ChatsController {
     return this.service.getChats();
   }
 
-  @Get('/list/test')
-  findAllTest() {
-    return this.service.getChats();
-  }
-
   @Get(':id/messages')
   findMessages(@Param('id') id: string) {
     return this.service.getChatMessages(id);

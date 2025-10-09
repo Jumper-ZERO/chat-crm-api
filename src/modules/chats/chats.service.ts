@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
-import { ChatMessageDto, ChatUserDto } from './dto/chat-user.dto';
 import { CreateChatDto, UpdateChatDto } from './dto/chat.dto';
-import { CreateMessageDto } from './dto/message.dto';
 import { Chat, Message } from './entities';
 import { Contact } from '../contacts/entities/contact.entity';
 import { User } from '../users/entities/user.entity';
@@ -26,21 +24,33 @@ export class ChatsService {
 
   async addMessage(
     chatId: string,
-    payload: CreateMessageDto,
+    payload: Pick<Message, 'senderType' | 'body' | 'mediaUrl' | 'direction' | 'type'>,
   ): Promise<Message> {
-    const chat = await this.chatRepo.findOneOrFail({ where: { id: chatId } });
+    const chat = await this.chatRepo.findOneOrFail({
+      where: { id: chatId },
+      loadRelationIds: true,
+    });
 
     const message: DeepPartial<Message> = {
-      chat: { id: chat.id },
       senderType: payload.direction === 'in' ? 'client' : 'user',
       body: payload.body,
       mediaUrl: payload?.mediaUrl,
       type: payload.mediaUrl ? 'image' : 'text',
     };
 
-    const msg = this.messageRepo.create(message);
+    const msg = this.messageRepo.create({
+      chat: { id: chat.id },
+      contact: { id: chat.contact?.id },
+      agent: { id: chat.assignedAgent?.id },
+      ...message,
+    });
+    const msgSaved = await this.messageRepo.save(msg);
 
-    return this.messageRepo.save(msg);
+    if (msgSaved) {
+      void this.chatRepo.update({ id: chat.id }, { lastMessage: { id: msgSaved.id } });
+    }
+
+    return msgSaved;
   }
 
   updateLastMessage(chatId: string, messageId: string) {
@@ -78,57 +88,10 @@ export class ChatsService {
     return chats;
   }
 
-  async getChatList(): Promise<ChatUserDto[]> {
-    const chats = await this.chatRepo.find({
-      relations: {
-        contact: true,
-        messages: true,
-      },
-      order: {
-        createdAt: 'DESC',
-        messages: {
-          createdAt: 'DESC',
-        }
-      },
-    });
-
-    return chats.map(chat => {
-      const lastMessage = chat.messages
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()) // Ordenar por fecha del mensaje (el más nuevo primero)
-      [0]; // Tomar el primero
-
-      const mappedLastMessage: ChatMessageDto = lastMessage ? {
-        sender: lastMessage.senderType === 'user' ? 'You' : 'Client', // 'client' es el contacto
-        content: lastMessage.body,
-        timestamp: lastMessage.createdAt,
-      } : {
-        sender: 'System',
-        content: 'No messages yet.',
-        timestamp: new Date()
-      };
-
-      return {
-        id: chat.id,
-        // Mapeo de datos del Contacto (Contact)
-        fullName: chat.contact?.username || chat.contact?.phoneNumber || `Chat #${chat.id}`,
-        phone: chat.contact?.phoneNumber || 'N/A',
-        avatar: chat.contact.profile, // Usar un valor por defecto o cargar el real si existe
-
-        // Mapeo de datos del Chat
-        status: chat.status,
-        title: chat.status === 'open' ? 'Active' : chat.status === 'pending' ? 'Pending' : 'Closed',
-
-        // Último Mensaje
-        lastMessage: mappedLastMessage,
-      } as ChatUserDto;
-    });
-  }
-
   async getMessagesByChatId(chatId: string): Promise<Message[]> {
     return this.messageRepo.find({
       where: { chat: { id: chatId } },
-      order: { createdAt: 'DESC' }, // Ordenar por fecha de envío descendente (los más nuevos primero)
-      // relations: ['senderType'], // Si 'senderType' sigue siendo una relación a User
+      order: { createdAt: 'DESC' },
     });
   }
 
