@@ -1,22 +1,66 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { PinoLogger } from 'nestjs-pino';
 import { Server, Socket } from 'socket.io';
+import { WhatsappService } from './whatsapp.service';
+import { JwtPayload } from '../../auth/auth.types';
+import { ChatsService } from '../chats/chats.service';
+import { WhatsAppHttpException } from './exceptions/whatsapp.exceptions';
 
 @WebSocketGateway({
   namespace: 'whatsapp',
-  cors: { origin: '*' },
+  cors: {
+    origin: '*',
+    credentials: true,
+    allowedHeaders: ['Content-Type'],
+  },
 })
 export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    private readonly logger: PinoLogger,
+    private readonly chatsService: ChatsService,
+    private readonly whatsappService: WhatsappService,
+  ) { this.logger.setContext(WhatsappGateway.name) }
+
   @WebSocketServer()
   server: Server;
 
   handleConnection(client: Socket) {
-    console.log(`Cliente conectado: ${client.id}`);
+    const { user } = client.handshake.auth;
+    this.logger.debug(`Usuario autenticado: ${JSON.stringify(user) || 'Invitado'}`);
+    this.logger.debug(`Cliente conectado: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Cliente desconectado: ${client.id}`);
+    this.logger.debug(`Cliente desconectado: ${client.id}`);
+  }
+
+  @SubscribeMessage('send-message')
+  async handleSendMessage(@ConnectedSocket() client: Socket, @MessageBody() data: { chat: string; to: string, body: string }) {
+    this.logger.debug(`Mensaje recibido desde React: ${JSON.stringify(client.handshake.auth)}`);
+    const auth = client.handshake.auth as JwtPayload;
+    const isSent = await this.whatsappService.sendTextMessage(data.to, data.body, auth.companyId).catch((err: WhatsAppHttpException) => {
+      client.emit('error-event', { type: err.type, message: err.message });
+      return false;
+    });
+
+    if (!isSent) {
+      this.logger.error('Error enviando mensaje a través de WhatsApp API');
+      return;
+    }
+
+    void client.join(data.chat);
+
+    const msg = await this.chatsService.addMessage(data.chat, {
+      senderType: 'user',
+      body: data.body,
+      mediaUrl: undefined, // * This is optional
+      direction: 'out',
+      type: 'text' // * This is type message
+    })
+
+    this.logger.debug(`Mensaje guardado en DB: ${JSON.stringify(msg)}`);
   }
 
   @SubscribeMessage('sendMessage')

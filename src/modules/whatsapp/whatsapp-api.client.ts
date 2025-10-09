@@ -25,7 +25,11 @@ export class WhatsAppApiClient {
       'Content-Type': 'application/json',
     };
 
-    const res = await this.http.axiosRef.post<WhatsAppSendMessageResponse>(url, payload, { headers });
+    const res = await this.http.axiosRef.post<WhatsAppSendMessageResponse>(url, payload, { headers }).catch((err: AxiosError) => {
+      this.logger.error(`WhatsApp API Error: ${JSON.stringify(err.response?.data)}`);
+      throw new WhatsAppHttpException(err);
+    });
+
     this.logger.debug(`WhatsApp API Response: ${JSON.stringify(res.data)}`);
     return res.status === HttpStatus.OK.valueOf();
   }
