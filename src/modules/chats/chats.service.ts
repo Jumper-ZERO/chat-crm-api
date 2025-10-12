@@ -130,6 +130,7 @@ export class ChatsService {
       contact: { id: chat.contact?.id },
       agent: { id: chat.assignedAgent?.id },
       senderType: this.determineSenderType(payload.direction),
+      direction: payload.direction,
       body: payload.body,
       mediaUrl: payload.mediaUrl,
       type: this.determineMessageType(payload.mediaUrl),

@@ -82,16 +82,14 @@ export class WebhookService {
           this.logger.debug(`Saving message from ${phoneNumber}: ${msg.body}`);
           savedMsg = await this.messageRepo.save(msg);
 
-          if (agent) {
-            this.logger.debug(`Emitting to agent ${JSON.stringify(chat)} message from ${phoneNumber}: ${msg.body}`);
-            this.whatsappGateway.emitIncomingMessage(agent.id, { from: phoneNumber, text: msg.body });
-          }
+          this.logger.debug(`Emitting to agent ${JSON.stringify(chat)} message from ${phoneNumber}: ${msg.body}`);
         }
         break;
     }
 
     if (savedMsg) {
       void this.chatService.updateLastMessage(chat.id, savedMsg.id);
+      this.whatsappGateway.server.to(chat.id).emit('new-message', savedMsg);
     }
   }
 }
