@@ -36,6 +36,12 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
     this.logger.debug(`Cliente desconectado: ${client.id}`);
   }
 
+  @SubscribeMessage('join-chat')
+  handleJoinChatRoom(@ConnectedSocket() client: Socket, @MessageBody() chatId: string) {
+    void client.join(chatId);
+    this.logger.debug(`Client ${client.id} join to chat ${chatId}`);
+  }
+
   @SubscribeMessage('send-message')
   async handleSendMessage(@ConnectedSocket() client: Socket, @MessageBody() data: { chat: string; to: string, body: string }) {
     this.logger.debug(`Mensaje recibido desde React: ${JSON.stringify(client.handshake.auth)}`);
@@ -49,8 +55,6 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.logger.error('Error enviando mensaje a través de WhatsApp API');
       return;
     }
-
-    void client.join(data.chat);
 
     const msg = await this.chatsService.addMessage(data.chat, {
       senderType: 'user',
