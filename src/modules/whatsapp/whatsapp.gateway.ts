@@ -61,6 +61,8 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
     })
 
     this.logger.debug(`Mensaje guardado en DB: ${JSON.stringify(msg)}`);
+
+    this.server.to(data.chat).emit('new-message', msg);
   }
 
   @SubscribeMessage('sendMessage')
