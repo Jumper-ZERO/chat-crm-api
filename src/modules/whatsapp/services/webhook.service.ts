@@ -35,6 +35,20 @@ export class WebhookService {
       this.logger.debug(`Processing webhook for company: ${data.id})`);
 
       for (const change of data.changes ?? []) {
+
+        for (const status of change.value.statuses ?? []) {
+          this.logger.debug(`Webhook status: ${JSON.stringify(status)}`);
+
+          for (const error of status.errors ?? []) {
+            this.whatsappGateway.server.emit('error-event', {
+              type: error.title ?? 'webhook_status_error',
+              message: error.error_data.details || 'WhatsApp Webhook Status Error',
+              hasAction: true,
+              to: status.recipient_id
+            });
+          }
+        }
+
         for (const message of change.value.messages ?? []) {
           const senderWaId = message.from;
           const contact = change.value.contacts?.find(c => c.wa_id === senderWaId);

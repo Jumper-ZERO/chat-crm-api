@@ -26,4 +26,22 @@ export class WhatsAppMessageFactory {
       image: { link, caption },
     };
   }
+
+  template(to: string, name: string, language: string): any {
+    const message: any = {
+      messaging_product: "whatsapp",
+      to,
+      type: "template",
+      template: {
+        name,
+        language: { code: language },
+      },
+    };
+
+    // if (components) {
+    // message.template.components = components;
+    // }
+
+    return message;
+  }
 }

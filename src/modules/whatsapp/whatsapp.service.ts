@@ -13,6 +13,20 @@ export class WhatsappService {
     private readonly logger: PinoLogger,
   ) { this.logger.setContext(WhatsappService.name) }
 
+  async sendTemplateMessage(to: string, templateName: string, languageCode: string, companyId: string) {
+    const { apiBaseUrl, apiVersion, phoneNumberId, accessToken } = await this.config.getActiveByCompany(companyId);
+    const url = `${apiBaseUrl}/${apiVersion}/${phoneNumberId}/messages`;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const payload: any = this.factory.template(to, templateName, languageCode);
+
+    return this.client.sendMessage(url, accessToken, payload).catch(err => {
+      this.logger.debug(`Info request WhatsApp API: ${apiBaseUrl} - ${apiVersion} - ${phoneNumberId}`);
+      this.logger.debug(`Payload request WhatsApp API: ${JSON.stringify(payload, null, 2)}`);
+      this.logger.debug(`Error sending template message to ${to}`);
+      throw err;
+    });
+  }
+
   async sendTextMessage(to: string, message: string, companyId: string) {
     const { apiBaseUrl, apiVersion, phoneNumberId, accessToken } = await this.config.getActiveByCompany(companyId);
     const url = `${apiBaseUrl}/${apiVersion}/${phoneNumberId}/messages`;
