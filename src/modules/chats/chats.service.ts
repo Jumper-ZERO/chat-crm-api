@@ -4,16 +4,12 @@ import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm';
 import { CreateChatDto, UpdateChatDto } from './dto/chat.dto';
 import { Chat, Message } from './entities';
-import { Contact } from '../contacts/entities/contact.entity';
-import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class ChatsService {
   constructor(
     @InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
     @InjectRepository(Message) private readonly messageRepo: Repository<Message>,
-    @InjectRepository(Contact) private readonly contactRepo: Repository<Contact>,
-    @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly logger: PinoLogger,
   ) { }
 
