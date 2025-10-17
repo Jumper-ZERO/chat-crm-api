@@ -63,8 +63,9 @@ export class ChatsService {
     return await this.chatRepo.save(chat);
   }
 
-  async getChats() {
+  async getChats(userID?: string) {
     const chats = await this.chatRepo.find({
+      where: userID ? { assignedAgent: { id: userID } } : {},
       relations: {
         contact: true,
         lastMessage: true,
