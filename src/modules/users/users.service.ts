@@ -21,6 +21,16 @@ export class UsersService {
     private readonly chatRepo: Repository<Chat>,
   ) { }
 
+  async online(id: string) {
+    const result = await this.repo.update({ id }, { status: 'online' })
+    return result.affected === 1;
+  }
+
+  async offline(id: string) {
+    const result = await this.repo.update({ id }, { status: 'offline' })
+    return result.affected === 1;
+  }
+
   async table(query: UserTableQueryDto): Promise<Pagination<User>> {
     const { findOptions, paginationOptions } = buildQueryOptions(query);
 

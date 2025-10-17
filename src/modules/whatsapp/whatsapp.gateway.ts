@@ -5,6 +5,7 @@ import { WhatsappService } from './whatsapp.service';
 import { JwtPayload } from '../../auth/auth.types';
 import { ChatsService } from '../chats/chats.service';
 import { WhatsAppHttpException } from './exceptions/whatsapp.exceptions';
+import { UsersService } from '../users/users.service';
 
 @WebSocketGateway({
   namespace: 'whatsapp',
@@ -18,6 +19,7 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
   constructor(
     private readonly logger: PinoLogger,
     private readonly chatsService: ChatsService,
+    private readonly userService: UsersService,
     private readonly whatsappService: WhatsappService,
   ) { this.logger.setContext(WhatsappGateway.name) }
 
@@ -25,12 +27,16 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
   server: Server;
 
   handleConnection(client: Socket) {
-    const { user } = client.handshake.auth;
-    this.logger.debug(`Usuario autenticado: ${JSON.stringify(user) || 'Invitado'}`);
+    const { user } = client.handshake.auth as { user: JwtPayload };
+    void this.userService.online(user.sub);
+
     this.logger.debug(`Cliente conectado: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
+    const { user } = client.handshake.auth as { user: JwtPayload };
+    void this.userService.offline(user.sub);
+
     this.logger.debug(`Cliente desconectado: ${client.id}`);
   }
 
