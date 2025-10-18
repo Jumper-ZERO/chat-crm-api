@@ -13,6 +13,11 @@ export class ChatsService {
     private readonly logger: PinoLogger,
   ) { }
 
+  async assignedUser(id: string, userId: string) {
+    const result = await this.chatRepo.update({ id }, { assignedAgent: { id: userId } })
+    return result.affected === 1;
+  }
+
   async getChatMessages(chatId: string): Promise<Message[]> {
     return this.messageRepo.find({
       where: { chat: { id: chatId } },

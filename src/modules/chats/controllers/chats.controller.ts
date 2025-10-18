@@ -26,6 +26,12 @@ export class ChatsController {
     return this.service.getChatMessages(id);
   }
 
+  @Get(':id/assigned/:userId')
+  assinedUser(@Param('id') id: string, @Param('userId') userId: string) {
+    const result = this.service.assignedUser(id, userId);
+    return { success: result }
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.service.findOne(+id);
