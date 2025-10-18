@@ -53,11 +53,11 @@ export class UsersService {
   searchUser(dto: UserSearchDto) {
     const { q, limit } = dto;
     const findOptions: FindManyOptions<User> = {
-      where: [
+      where: q ? [
         { username: Like(`%${q}%`) },
         { firstNames: Like(`%${q}%`) },
         { lastNames: Like(`%${q}%`) },
-      ],
+      ] : {},
       take: limit,
       order: { username: 'ASC' }
     };
