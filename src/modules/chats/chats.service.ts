@@ -17,6 +17,7 @@ export class ChatsService {
     return this.messageRepo.find({
       where: { chat: { id: chatId } },
       order: { createdAt: 'DESC' },
+      loadRelationIds: true,
     });
   }
 
