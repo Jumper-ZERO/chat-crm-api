@@ -46,7 +46,7 @@ export class ChatsService {
   }
 
   updateLastMessage(chatId: string, messageId: string) {
-    return this.chatRepo.update({ id: chatId }, { lastMessage: { id: messageId } });
+    return this.chatRepo.update({ id: chatId }, { status: 'open', lastMessage: { id: messageId } });
   }
 
   async findOrCreateByContact(agentId: string, contactId: string, isSystem: boolean = false): Promise<Chat> {
@@ -148,6 +148,7 @@ export class ChatsService {
       const chat = await this.chatRepo.findOneOrFail({
         where: { id: chatId },
       });
+      chat.status = 'open';
       chat.lastMessage = message;
       await this.chatRepo.save(chat);
     } catch (error) {

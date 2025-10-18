@@ -22,7 +22,7 @@ export class Chat {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ default: 'open' })
+  @Column({ default: 'pending' })
   status: ChatStatus;
 
   @ManyToOne(() => Message, { nullable: true, eager: true })
