@@ -30,7 +30,12 @@ export class WhatsappGateway implements OnGatewayConnection, OnGatewayDisconnect
     const { user } = client.handshake.auth as { user: JwtPayload };
     void this.userService.online(user.sub);
 
-    this.logger.debug(`Cliente conectado: ${client.id}`);
+    if (user.companyId) {
+      void client.join(`company_${user.companyId}`);
+      this.logger.debug(`Client ${client.id} joined company room: company_${user.companyId}`);
+    } else {
+      this.logger.debug(`Cliente conectado: ${client.id}`);
+    }
   }
 
   handleDisconnect(client: Socket) {

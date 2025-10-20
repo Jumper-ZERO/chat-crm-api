@@ -16,6 +16,7 @@ import { ChatsService } from '../chats/chats.service';
 import { Chat, Message } from '../chats/entities';
 import { ContactsService } from '../contacts/contacts.service';
 import { Contact } from '../contacts/entities/contact.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 
@@ -32,6 +33,7 @@ import { UsersService } from '../users/users.service';
       Chat
     ]),
     HttpModule,
+    NotificationsModule
   ],
   controllers: [WhatsappController, WhatsappWebhookController, WhatsAppConfigController],
   providers: [
@@ -44,7 +46,7 @@ import { UsersService } from '../users/users.service';
     WhatsAppMessageFactory,
     ChatsService,
     ContactsService,
-    UsersService
+    UsersService,
   ],
   exports: [WhatsAppConfigService, WhatsAppApiClient],
 })

@@ -2,6 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { BeforeInsert, Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Chat } from '../../chats/entities/chat.entity.js';
 import { Company } from '../../companies/entities/company.entity.js';
+import { Notification } from '../../notifications/entities/notification.entity.js';
 
 export type UserRole = 'admin' | 'supervisor' | 'support' | 'agent' | 'system';
 export type UserStatue = 'online' | 'offline' | 'busy';
@@ -60,6 +61,9 @@ export class User {
   @ManyToOne(() => Company, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'companyId' })
   company: Company;
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[]
 
   // Hash password before inserting into the database
   @BeforeInsert()
