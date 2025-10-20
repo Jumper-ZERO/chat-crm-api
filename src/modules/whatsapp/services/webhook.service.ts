@@ -21,9 +21,9 @@ export class WebhookService {
     private readonly chatService: ChatsService,
     private readonly userService: UsersService,
     private readonly whatsappGateway: WhatsappGateway,
+    private readonly notificationService: NotificationsService,
     @InjectRepository(Message)
     private readonly messageRepo: Repository<Message>,
-    private readonly notificationService: NotificationsService
   ) { }
 
   async handleIncomingMessage(payload: WhatsappNotification) {
@@ -107,18 +107,16 @@ export class WebhookService {
       void this.chatService.updateLastMessage(chat.id, savedMsg.id);
       const room = this.whatsappGateway.server.sockets.adapter?.rooms?.get(chat.id);
       this.logger.debug("Rooms: ", room);
-      const clientsInRoom = room ? room.size : 0;
+      const clientsInRoom = room ? room?.size : 0;
       if (clientsInRoom === 0) {
-        this.whatsappGateway.server.to(`company_${companyId}`).emit('new-notification', async () => {
-          const { createdAt: time, ...rest } = await this.notificationService.create(
-            `New Message from ${contact.username}`,
-            savedMsg.body
-          )
+        const { createdAt: time, ...rest } = await this.notificationService.create(
+          `New Message from ${contact.username}`,
+          savedMsg.body
+        )
 
-          return {
-            time,
-            ...rest
-          }
+        this.whatsappGateway.server.to(`company_${companyId}`).emit('new-notification', {
+          time,
+          ...rest
         });
       }
 
