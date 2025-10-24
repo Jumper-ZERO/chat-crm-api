@@ -25,7 +25,7 @@ export class Chat {
   @Column({ default: 'pending' })
   status: ChatStatus;
 
-  @ManyToOne(() => Message, { nullable: true, eager: true })
+  @ManyToOne(() => Message, { nullable: true, eager: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'lastMessageId' })
   lastMessage?: Message;
 
