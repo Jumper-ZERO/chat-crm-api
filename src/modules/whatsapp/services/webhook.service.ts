@@ -86,6 +86,7 @@ export class WebhookService {
       waMessageId: message.id,
       chat: chat,
       contact: contact,
+      agent: agent,
       direction: 'in',
       status: 'received',
       senderType: 'client',
