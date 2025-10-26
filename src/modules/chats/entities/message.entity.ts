@@ -1,7 +1,17 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from "typeorm";
 import { Chat } from "./chat.entity";
 import { Contact } from "../../contacts/entities/contact.entity";
 import { User } from "../../users/entities/user.entity";
+import { SentimentAnalysis } from "../../whatsapp/entities/sentiment-analysis.entity";
 
 export type MessageType = 'text' | 'image' | 'file' | 'audio' | 'video' | 'document';
 export type MessageSenderType = 'user' | 'client' | 'system';
@@ -57,4 +67,7 @@ export class Message {
 
   @ManyToOne(() => User, { nullable: true })
   agent: User;
+
+  @OneToMany(() => SentimentAnalysis, (a) => a.message, { nullable: true })
+  analysis: SentimentAnalysis[]
 }

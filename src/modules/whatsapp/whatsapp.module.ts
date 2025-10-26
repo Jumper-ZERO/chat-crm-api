@@ -1,11 +1,14 @@
 import { HttpModule } from '@nestjs/axios';
-import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SentimentService } from './services/sentiment.service';
 import { WebhookService } from './services/webhook.service';
 import { WhatsAppConfigService } from './services/whatsapp-config.service';
 import { WhatsappService } from './whatsapp.service';
+import { SentimentAnalysis } from './entities/sentiment-analysis.entity';
 import { WhatsAppConfigController, WhatsappController, WhatsappWebhookController } from './controllers';
 import { WhatsAppConfig } from './entities';
 import { WhatsAppMessageFactory } from './factories/whatsapp-message.factory';
@@ -19,6 +22,9 @@ import { Contact } from '../contacts/entities/contact.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { SentimentClient } from './clients/sentiment.client';
+import { SentimentProcessor } from './processors/sentiment.processor';
+import { ChatsModule } from '../chats/chats.module';
 
 @Module({
   imports: [
@@ -30,10 +36,15 @@ import { UsersService } from '../users/users.service';
       Contact,
       User,
       WhatsAppConfig,
-      Chat
+      Chat,
+      SentimentAnalysis,
     ]),
+    BullModule.registerQueue({
+      name: 'sentiment'
+    }),
     HttpModule,
-    NotificationsModule
+    NotificationsModule,
+    forwardRef(() => ChatsModule)
   ],
   controllers: [WhatsappController, WhatsappWebhookController, WhatsAppConfigController],
   providers: [
@@ -47,7 +58,14 @@ import { UsersService } from '../users/users.service';
     ChatsService,
     ContactsService,
     UsersService,
+    SentimentClient,
+    SentimentProcessor,
+    SentimentService,
   ],
-  exports: [WhatsAppConfigService, WhatsAppApiClient],
+  exports: [
+    WhatsAppConfigService,
+    WhatsAppApiClient,
+    BullModule,
+  ],
 })
 export class WhatsappModule { }

@@ -2,6 +2,7 @@ import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import type { Request } from "express";
 import { JwtPayload } from "../../../auth/auth.types";
+import { SentimentClient } from "../clients/sentiment.client";
 import { SendMessageDto } from "../dto/send-message.dto";
 import { WhatsappService } from "../whatsapp.service";
 
@@ -9,8 +10,18 @@ import { WhatsappService } from "../whatsapp.service";
 @UseGuards(AuthGuard('jwt'))
 export class WhatsappController {
   constructor(
-    private readonly service: WhatsappService
+    private readonly service: WhatsappService,
+    private readonly client: SentimentClient,
   ) { }
+
+  @Post('nlp')
+  async analyze(@Body('text') text: string) {
+    const res = await this.client.analyze(text);
+    return {
+      success: !!res,
+      res
+    }
+  }
 
   @Post('send')
   async sendMessage(@Body() body: SendMessageDto) {

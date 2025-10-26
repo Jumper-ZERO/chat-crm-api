@@ -1,19 +1,32 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Queue } from 'bullmq';
 import { PinoLogger } from 'nestjs-pino';
 import { Repository } from 'typeorm';
 import { CreateChatDto, UpdateChatDto } from './dto/chat.dto';
-import { Chat, Message } from './entities';
+import { Chat, Message, Transfer } from './entities';
 
 @Injectable()
 export class ChatsService {
   constructor(
     @InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
     @InjectRepository(Message) private readonly messageRepo: Repository<Message>,
+    @InjectRepository(Transfer) private readonly transferRepo: Repository<Transfer>,
+    @InjectQueue('sentiment') private readonly sentimentQueue: Queue,
     private readonly logger: PinoLogger,
   ) { }
 
   async assignedUser(id: string, userId: string) {
+    const chat = await this.chatRepo.findOne({ where: { id: id }, loadRelationIds: true });
+    if (!chat) return false;
+
+    void this.transferRepo.save({
+      chat: { id },
+      fromAgent: chat.assignedAgent,
+      toAgent: { id: userId }
+    })
+
     const result = await this.chatRepo.update({ id }, { assignedAgent: { id: userId } })
     return result.affected === 1;
   }
@@ -37,6 +50,10 @@ export class ChatsService {
     const chat = await this.getChatOrFail(chatId)
     const message = this.createMessageEntity(chat, payload)
     const savedMessage = await this.messageRepo.save(message)
+
+    this.logger.debug("Sentiment processor here")
+    // Consumer
+    await this.sentimentQueue.add('analyze', savedMessage);
 
     this.updateChatLastMessage(chat.id, savedMessage).catch((error) =>
       this.logger.error('Error updating chat last message', error),
