@@ -1,10 +1,9 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import type { Response } from 'express';
 
+import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
-import type { AuthRequest } from './auth.types';
-
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -12,21 +11,29 @@ export class AuthController {
 
   @Post('login')
   async login(
-    @Body() body: { username: string; password: string },
+    @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response
-  ): Promise<{ access_token: string; }> {
-    const token = await this.authService.signIn(body.username, body.password, res);
-    return token;
+  ) {
+    const { payload: user, access_token } = await this.authService.sign(body);
+
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      sameSite: 'lax', // 'none' in https
+      secure: process.env.COOKIE_SECURE === '1',
+    });
+
+    return { message: 'Login Success', user }
   }
 
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    return this.authService.logout(res)
+    res.clearCookie('access_token');
+    return { message: 'Logout success' }
   }
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
-  getProfile(@Req() req: AuthRequest) {
+  getProfile(@Req() req: Request) {
     return req.user;
   }
 }

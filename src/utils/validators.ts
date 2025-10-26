@@ -9,6 +9,7 @@ import { EntityManager } from "typeorm";
 export type IsUniqeInterface = {
   tableName: string,
   column: string
+  ignoreId?: boolean
 }
 
 @ValidatorConstraint({ name: 'IsUniqueConstraint', async: true })
@@ -23,13 +24,20 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
     args: ValidationArguments
   ): Promise<boolean> {
     // catch options from decorator
-    const { tableName, column }: IsUniqeInterface = args.constraints[0]
+    const { tableName, column, ignoreId }: IsUniqeInterface = args.constraints[0]
+    const object: any = args.object;
+    const currentId = object.id;
 
     // database query check data is exists
-    const dataExist = await this.entityManager.getRepository(tableName)
+    const query = this.entityManager.getRepository(tableName)
       .createQueryBuilder(tableName)
       .where({ [column]: value })
-      .getExists()
+
+    if (ignoreId && currentId) {
+      query.andWhere(`${tableName}.id != :currentId`, { currentId });
+    }
+
+    const dataExist = await query.getExists()
 
     return !dataExist
   }

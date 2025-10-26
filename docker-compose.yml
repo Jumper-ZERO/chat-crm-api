@@ -13,11 +13,16 @@ services:
       - DB_USERNAME=${DB_USERNAME:-root}
       - DB_PASSWORD=${DB_PASSWORD:-password}
       - DB_DATABASE=${DB_DATABASE:-chat_crm_db}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
     volumes:
       - /app/node_modules
       - .:/app
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - nestjs-network
@@ -48,6 +53,33 @@ services:
       interval: 10s
       start_period: 40s
 
+  redis:
+    image: redis:7-alpine
+    container_name: nestjs-redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+    volumes:
+      - redis_data:/data
+    networks:
+      - nestjs-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 3s
+      retries: 5
+      interval: 10s
+      start_period: 10s
+    command: >
+      sh -c "
+      if [ -n \"$$REDIS_PASSWORD\" ]; then
+        redis-server --requirepass $$REDIS_PASSWORD --appendonly yes
+      else
+        redis-server --appendonly yes
+      fi
+      "
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: nestjs-phpmyadmin
@@ -67,6 +99,8 @@ services:
 # Volúmenes persistentes
 volumes:
   mysql_data:
+    driver: local
+  redis_data:
     driver: local
 
 # Red personalizada

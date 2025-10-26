@@ -1,14 +1,21 @@
-import { Module } from '@nestjs/common';
-import { ChatsService } from './chats.service';
-import { ChatsController } from './chats.controller';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChatSession } from 'src/modules/chats/entities/chat-session.entity';
-import { ChatTransfer } from 'src/modules/chats/entities/chat-transfer.entity';
-import { ChatMessage } from 'src/modules/chats/entities/chat-message.entity';
+import { ChatsService } from './chats.service';
+import { ChatsController, MessagesController } from './controllers';
+import { Chat, Message, Transfer } from './entities';
+import { Contact } from '../contacts/entities/contact.entity';
+import { User } from '../users/entities/user.entity';
+import { WhatsappModule } from '../whatsapp/whatsapp.module';
+
+const TypeOrmFeatureModule = TypeOrmModule.forFeature([Chat, Message, Contact, User, Transfer]);
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ChatSession, ChatMessage, ChatTransfer])],
-  controllers: [ChatsController],
+  imports: [
+    TypeOrmFeatureModule,
+    forwardRef(() => WhatsappModule)
+  ],
+  controllers: [ChatsController, MessagesController],
   providers: [ChatsService],
+  exports: [TypeOrmFeatureModule, ChatsService]
 })
-export class ChatsModule {}
+export class ChatsModule { }

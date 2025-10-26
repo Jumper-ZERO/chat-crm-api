@@ -1,15 +1,12 @@
 export type JwtPayload = {
-  sub: number;
+  sub: string;
   username: string;
   role: string;
+  companyId: string;
+  businessId: string;
 };
 
-export interface AuthUser {
-  id?: number;
-  username?: string;
-  role?: string;
-}
-
-export interface AuthRequest {
-  user?: AuthUser;
+export type AuthResponse = {
+  access_token: string;
+  payload: JwtPayload;
 }
