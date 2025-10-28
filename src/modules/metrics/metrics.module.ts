@@ -12,5 +12,6 @@ import { SentimentAnalysis } from '../whatsapp/entities/sentiment-analysis.entit
   ],
   controllers: [MetricsController],
   providers: [MetricsService],
+  exports: [MetricsService]
 })
 export class MetricsModule { }
