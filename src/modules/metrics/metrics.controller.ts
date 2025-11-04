@@ -13,4 +13,16 @@ export class MetricsController {
     const metrics = this.metricsService.kpis();
     return metrics;
   }
+
+  @Get("sentiment/monthly-trend")
+  @HttpCode(HttpStatus.OK)
+  async getMonthlyTrend() {
+    return this.metricsService.getMonthlySentimentTrend();
+  }
+
+  @Get("top-contacts")
+  @HttpCode(HttpStatus.OK)
+  async getTopContacts() {
+    return this.metricsService.getTopContacts();
+  }
 }

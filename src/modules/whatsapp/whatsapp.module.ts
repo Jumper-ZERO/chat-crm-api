@@ -66,6 +66,9 @@ import { ChatsModule } from '../chats/chats.module';
     WhatsAppConfigService,
     WhatsAppApiClient,
     BullModule,
+    SentimentClient,
+    SentimentProcessor,
+    SentimentService,
   ],
 })
 export class WhatsappModule { }
