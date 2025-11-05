@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MetricsService } from './metrics.service';
 
@@ -18,6 +18,13 @@ export class MetricsController {
   @HttpCode(HttpStatus.OK)
   async getMonthlyTrend() {
     return this.metricsService.getMonthlySentimentTrend();
+  }
+
+  @Get("sentiment/trend")
+  @HttpCode(HttpStatus.OK)
+  async getSentimentTrend(@Query("range") range: 'day' | 'week' | 'month' | 'year') {
+    console.log("Range:", range);
+    return this.metricsService.getSentimentTrendByRange(range);
   }
 
   @Get("top-contacts")

@@ -1,9 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { endOfDay, endOfMonth, endOfToday, startOfDay, startOfMonth, startOfToday, subDays, subHours, subMonths } from 'date-fns';
+import {
+  addDays,
+  addHours,
+  addMonths,
+  endOfDay,
+  endOfMonth,
+  endOfToday,
+  format,
+  startOfDay,
+  startOfMonth,
+  startOfToday,
+  subDays,
+  subHours,
+  subMonths
+} from 'date-fns';
 import { Between, IsNull, Repository } from 'typeorm';
 import { Chat, Message, Transfer } from '../chats/entities';
 import { SentimentAnalysis } from '../whatsapp/entities/sentiment-analysis.entity';
+
+type SentimentTrendRange = 'day' | 'week' | 'month' | 'year';
 
 @Injectable()
 export class MetricsService {
@@ -159,8 +175,82 @@ export class MetricsService {
       },
     });
 
-    // const change = previous === 0 ? 0 : (current - previous) / previous;
     return this.buildKPI(current, previous)
+  }
+
+  async getSentimentTrendByRange(
+    range: SentimentTrendRange = 'week'
+  ): Promise<{
+    date: string;
+    pos: number;
+    neg: number;
+    neu: number;
+  }[]> {
+    const now = new Date();
+    let start: Date;
+    const end: Date = now;
+    let stepFn: (date: Date) => Date;
+    let formatStr: string;
+    let groupFormat: string;
+
+    switch (range) {
+      case 'day':
+        start = subDays(now, 1);
+        groupFormat = "%Y-%m-%d %H:00:00";
+        formatStr = 'yyyy-MM-dd HH:00:00';
+        stepFn = (d) => addHours(d, 1);
+        break;
+      case 'week':
+        start = subDays(now, 7);
+        groupFormat = "%Y-%m-%d";
+        formatStr = 'yyyy-MM-dd';
+        stepFn = (d) => addDays(d, 1);
+        break;
+      case 'month':
+        start = subDays(now, 30);
+        groupFormat = "%Y-%m-%d";
+        formatStr = 'yyyy-MM-dd';
+        stepFn = (d) => addDays(d, 1);
+        break;
+      case 'year':
+        start = startOfMonth(subMonths(now, 11));
+        groupFormat = "%Y-%m";
+        formatStr = 'yyyy-MM';
+        stepFn = (d) => addMonths(d, 1);
+        break;
+      default:
+        start = subDays(now, 30);
+        groupFormat = "%Y-%m-%d";
+        formatStr = 'yyyy-MM-dd';
+        stepFn = (d) => addDays(d, 1);
+    }
+
+    const raw = await this.sentimentRepo
+      .createQueryBuilder('sentiment')
+      .select([
+        `DATE_FORMAT(sentiment.createdAt, '${groupFormat}') AS date`,
+        "AVG(sentiment.pos) AS pos",
+        "AVG(sentiment.neg) AS neg",
+        "AVG(sentiment.neu) AS neu",
+      ])
+      .where('sentiment.createdAt BETWEEN :start AND :end', { start, end })
+      .groupBy(`DATE_FORMAT(sentiment.createdAt, '${groupFormat}')`)
+      .orderBy('date', 'ASC')
+      .getRawMany<{
+        date: string;
+        pos: string;
+        neg: string;
+        neu: string;
+      }>();
+
+    const result = raw.map(({ date, pos, neg, neu }) => ({
+      date,
+      pos: parseFloat(pos ?? '0'),
+      neg: parseFloat(neg ?? '0'),
+      neu: parseFloat(neu ?? '0'),
+    }));
+
+    return this.fillMissingData(result, start, end, stepFn, formatStr);
   }
 
   async sentimentToday() {
@@ -282,5 +372,29 @@ export class MetricsService {
       }>()
 
     return results
+  }
+
+  private fillMissingData(
+    data: { date: string; pos: number; neg: number; neu: number }[],
+    start: Date,
+    end: Date,
+    stepFn: (date: Date) => Date,
+    formatStr: string
+  ) {
+    const filled: typeof data = [];
+    let current = start;
+
+    while (current <= end) {
+      const formatted = format(current, formatStr);
+      const existing = data.find((r) => r.date === formatted);
+      if (existing) {
+        filled.push(existing);
+      } else {
+        filled.push({ date: formatted, pos: 0, neg: 0, neu: 0 });
+      }
+      current = stepFn(current);
+    }
+
+    return filled;
   }
 }
