@@ -1,5 +1,5 @@
 import { InjectQueue } from '@nestjs/bullmq';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Queue } from 'bullmq';
 import { PinoLogger } from 'nestjs-pino';
@@ -47,7 +47,13 @@ export class ChatsService {
       throw new BadRequestException('Message body cannot be empty');
     }
 
-    const chat = await this.getChatOrFail(chatId)
+    const chat = await this.chatRepo.findOne({
+      where: { id: chatId },
+      relations: ['assignedAgent', 'contact'],
+    });
+
+    if (!chat) throw new NotFoundException('Chat not found');
+
     const message = this.createMessageEntity(chat, payload)
     const savedMessage = await this.messageRepo.save(message)
 
@@ -69,6 +75,7 @@ export class ChatsService {
   async findOrCreateByContact(agentId: string, contactId: string, isSystem: boolean = false): Promise<Chat> {
     let chat = await this.chatRepo.findOne({
       where: { contact: { id: contactId } },
+      relations: ['assignedAgent', 'contact'],
     });
 
     if (chat) return chat;

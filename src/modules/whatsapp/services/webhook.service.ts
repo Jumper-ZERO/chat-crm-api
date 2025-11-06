@@ -89,8 +89,8 @@ export class WebhookService {
     const msg: Partial<Message> = {
       waMessageId: message.id,
       chat: chat,
-      contact: contact,
-      agent: agent,
+      contact: chat.contact,
+      agent: chat.assignedAgent,
       direction: 'in',
       status: 'received',
       senderType: 'client',
