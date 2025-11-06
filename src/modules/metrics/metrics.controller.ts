@@ -32,4 +32,10 @@ export class MetricsController {
   async getTopContacts() {
     return this.metricsService.getTopContacts();
   }
+
+  @Get("best-agents")
+  @HttpCode(HttpStatus.OK)
+  async getBestAgents() {
+    return this.metricsService.getBestAgentsFast();
+  }
 }

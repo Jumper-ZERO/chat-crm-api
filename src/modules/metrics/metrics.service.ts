@@ -17,8 +17,16 @@ import {
 } from 'date-fns';
 import { Between, IsNull, Repository } from 'typeorm';
 import { Chat, Message, Transfer } from '../chats/entities';
+import { User } from '../users/entities/user.entity';
 import { SentimentAnalysis } from '../whatsapp/entities/sentiment-analysis.entity';
 
+export interface TopAgentMetrics {
+  agentId: string;
+  agentName: string;
+  totalPositive: number;
+  averagePositiveScore: number;
+  weightedScore: number;
+}
 type SentimentTrendRange = 'day' | 'week' | 'month' | 'year';
 
 @Injectable()
@@ -28,6 +36,7 @@ export class MetricsService {
     @InjectRepository(Message) private messageRepo: Repository<Message>,
     @InjectRepository(Transfer) private transferRepo: Repository<Transfer>,
     @InjectRepository(SentimentAnalysis) private sentimentRepo: Repository<SentimentAnalysis>,
+    @InjectRepository(User) private userRepo: Repository<User>,
   ) { }
 
   async kpis() {
@@ -397,4 +406,104 @@ export class MetricsService {
 
     return filled;
   }
+
+  async getBestAgents(): Promise<
+    { agentId: string; agentName: string; totalPositive: number; avgPos: number; score: number }[]
+  > {
+    return this.sentimentRepo
+      .createQueryBuilder('sa')
+      .select('m.agentId', 'agentId')
+      .addSelect('u.username', 'username')
+      .addSelect('COUNT(sa.id)', 'totalPositive')
+      .addSelect('AVG(sa.pos)', 'avgPos')
+      .addSelect('COUNT(sa.id) * AVG(sa.pos)', 'score')
+      .innerJoin('sa.message', 'm')
+      .innerJoin('m.agent', 'u')
+      .where("sa.label = :label", { label: 'POS' })
+      .groupBy('m.agentId')
+      .addGroupBy('username')
+      .orderBy('score', 'DESC')
+      .limit(5) // Top 5
+      .getRawMany();
+  }
+
+  async getTopFiveAgents() {
+    const results = await this.messageRepo
+      .createQueryBuilder('message')
+      .innerJoin('chats', 'chat', 'chat.id = message.ChatId')
+      .innerJoin('users', 'agent', 'agent.id = chat.assignedAgentId')
+      .innerJoin('sentiment_analysis', 'sentiment', 'sentiment.messageId = message.id')
+      .select('chat.assignedAgentId', 'agentId')
+      .addSelect('agent.firstNames', 'firstNames')
+      .addSelect('agent.lastNames', 'lastNames')
+      .addSelect('agent.username', 'username')
+      .addSelect(
+        'SUM(CASE WHEN sentiment.label = "POS" THEN 1 ELSE 0 END)',
+        'totalPositive',
+      )
+      .addSelect('AVG(sentiment.pos)', 'avgPositiveScore')
+      .addSelect('COUNT(message.id)', 'totalMessages')
+      .where('message.agentId IS NULL') // Mensajes que NO enviaron los agentes
+      .andWhere('message.direction = :direction', { direction: 'out' }) // Mensajes de clientes
+      .andWhere('message.deletedAt IS NULL')
+      .andWhere('chat.assignedAgentId IS NOT NULL')
+      .groupBy('chat.assignedAgentId')
+      .addGroupBy('agent.firstNames')
+      .addGroupBy('agent.lastNames')
+      .getRawMany<{
+        agentId: string;
+        firstNames: string;
+        lastNames: string;
+        totalPositive: string;
+        avgPositiveScore: string;
+        totalMessages: string;
+        username: string;
+      }>();
+
+    // Calcular score ponderado y ordenar
+    const metrics: TopAgentMetrics[] = results
+      .map((row) => {
+        const totalPositive = parseInt(row.totalPositive);
+        const avgPositiveScore = parseFloat(row.avgPositiveScore) || 0;
+
+        // Score ponderado: 60% total positivos, 40% promedio
+        const weightedScore = (totalPositive * 0.6) + (avgPositiveScore * 100 * 0.4);
+
+        return {
+          agentId: row.agentId,
+          agentName: row.firstNames && row.lastNames ? `${row.firstNames} ${row.lastNames}`.trim() : row.username,
+          totalPositive,
+          averagePositiveScore: Math.round(avgPositiveScore * 1000) / 1000,
+          weightedScore: Math.round(weightedScore * 100) / 100,
+        };
+      })
+      .sort((a, b) => b.weightedScore - a.weightedScore)
+      .slice(0, 5);
+
+    return metrics;
+  }
+
+  async getBestAgentsFast(): Promise<
+    { agentId: string; agentName: string; totalPositive: number; avgPos: number; score: number }[]
+  > {
+    return this.messageRepo
+      .createQueryBuilder('m')
+      .innerJoin('users', 'u', 'm.agentId = u.id')
+      .leftJoin('sentiment_analysis', 'sa', 'sa.messageId = m.id AND sa.label = :label', { label: 'POS' })
+      .select('u.id', 'agentId')
+      .addSelect('u.firstNames', 'firstNames')
+      .addSelect('u.lastNames', 'lastNames')
+      .addSelect('u.username', 'username')
+      .addSelect('u.avatar', 'profile')
+      .addSelect('u.phoneNumber', 'phoneNumber')
+      .addSelect('COUNT(sa.id)', 'totalPositive')
+      .addSelect('AVG(sa.pos)', 'avgPos')
+      .addSelect('COUNT(sa.id) * AVG(sa.pos)', 'score')
+      .groupBy('u.id')
+      .addGroupBy('u.username')
+      .orderBy('score', 'DESC')
+      .limit(5)
+      .getRawMany();
+  }
+
 }
