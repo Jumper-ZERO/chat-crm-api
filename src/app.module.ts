@@ -32,6 +32,7 @@ import { ContactsModule } from './modules/contacts/contacts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { UsersModule } from './modules/users/users.module';
 import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
+import { MetricsModule } from './modules/metrics/metrics.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
     ContactsModule,
     CompaniesModule,
     NotificationsModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [AppService, IsUniqueConstraint,

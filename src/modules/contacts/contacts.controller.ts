@@ -36,6 +36,7 @@ export class ContactsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateContactDto: UpdateContactDto) {
+    console.log(updateContactDto)
     return this.contactService.update(id, updateContactDto);
   }
 

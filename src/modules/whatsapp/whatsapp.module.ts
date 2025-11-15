@@ -9,7 +9,7 @@ import { WebhookService } from './services/webhook.service';
 import { WhatsAppConfigService } from './services/whatsapp-config.service';
 import { WhatsappService } from './whatsapp.service';
 import { SentimentAnalysis } from './entities/sentiment-analysis.entity';
-import { WhatsAppConfigController, WhatsappController, WhatsappWebhookController } from './controllers';
+import { SentimentController, WhatsAppConfigController, WhatsappController, WhatsappWebhookController } from './controllers';
 import { WhatsAppConfig } from './entities';
 import { WhatsAppMessageFactory } from './factories/whatsapp-message.factory';
 import { WhatsAppConfigSubscriber } from './subscribers/whatsapp-config.subscriber';
@@ -46,7 +46,12 @@ import { ChatsModule } from '../chats/chats.module';
     NotificationsModule,
     forwardRef(() => ChatsModule)
   ],
-  controllers: [WhatsappController, WhatsappWebhookController, WhatsAppConfigController],
+  controllers: [
+    WhatsappController,
+    WhatsappWebhookController,
+    WhatsAppConfigController,
+    SentimentController
+  ],
   providers: [
     WebhookService,
     WhatsappService,
@@ -66,6 +71,9 @@ import { ChatsModule } from '../chats/chats.module';
     WhatsAppConfigService,
     WhatsAppApiClient,
     BullModule,
+    SentimentClient,
+    SentimentProcessor,
+    SentimentService,
   ],
 })
 export class WhatsappModule { }

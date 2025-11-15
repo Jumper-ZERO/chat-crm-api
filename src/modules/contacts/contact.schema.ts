@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const ContactSchema = z.object({
   id: z.number().optional(),
   waId: z.string().optional(), // ID de WhatsApp
-  name: z.string().optional(),
+  username: z.string().optional(),
   phoneNumber: z.string(),
   email: z.string().optional(),
 });

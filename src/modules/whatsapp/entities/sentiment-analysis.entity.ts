@@ -25,7 +25,7 @@ export class SentimentAnalysis {
   model: string;
 
   @CreateDateColumn()
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
   updateAt: Date;
