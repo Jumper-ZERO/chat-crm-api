@@ -23,7 +23,6 @@ export class MetricsController {
   @Get("sentiment/trend")
   @HttpCode(HttpStatus.OK)
   async getSentimentTrend(@Query("range") range: 'day' | 'week' | 'month' | 'year') {
-    console.log("Range:", range);
     return this.metricsService.getSentimentTrendByRange(range);
   }
 
