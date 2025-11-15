@@ -25,6 +25,7 @@ import { UsersService } from '../users/users.service';
 import { SentimentClient } from './clients/sentiment.client';
 import { SentimentProcessor } from './processors/sentiment.processor';
 import { ChatsModule } from '../chats/chats.module';
+import { SentimentGateway } from './gateways/sentiment.gateway';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { ChatsModule } from '../chats/chats.module';
     UsersService,
     SentimentClient,
     SentimentProcessor,
+    SentimentGateway,
     SentimentService,
   ],
   exports: [
@@ -74,6 +76,7 @@ import { ChatsModule } from '../chats/chats.module';
     SentimentClient,
     SentimentProcessor,
     SentimentService,
+    SentimentGateway,
   ],
 })
 export class WhatsappModule { }

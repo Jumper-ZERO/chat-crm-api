@@ -3,12 +3,14 @@ import { Job } from "bullmq";
 import { PinoLogger } from "nestjs-pino";
 import { Message } from "../../chats/entities";
 import { SentimentAnalysis } from "../entities/sentiment-analysis.entity";
+import { SentimentGateway } from "../gateways/sentiment.gateway";
 import { SentimentService } from "../services/sentiment.service";
 
 @Processor('sentiment')
 export class SentimentProcessor extends WorkerHost {
   constructor(
     private readonly service: SentimentService,
+    private readonly gateway: SentimentGateway,
     private readonly logger: PinoLogger,
   ) { super() }
 
@@ -18,6 +20,10 @@ export class SentimentProcessor extends WorkerHost {
       case 'analyze': {
         this.logger.debug("Sentiment Analysis process")
         const analysis = await this.service.save(message)
+        const global = await this.service.getGlobalChatSentiment(message.chat.id)
+
+        this.gateway.emitGlobalSentiment(message.chat.id, global)
+
         return analysis
       }
     }
