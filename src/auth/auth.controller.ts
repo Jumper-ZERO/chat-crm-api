@@ -1,16 +1,39 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+import type { Response, Request } from 'express';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('login')
-  async login(@Body() body: { username: string; password: string }) {
-    const user = await this.authService.validateUser(body.username, body.password);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    return this.authService.login(user);
+  async login(
+    @Body() body: LoginDto,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const { payload: user, access_token } = await this.authService.sign(body);
+
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      sameSite: 'lax', // 'none' in https
+      secure: process.env.COOKIE_SECURE === '1',
+    });
+
+    return { message: 'Login Success', user }
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
+    return { message: 'Logout success' }
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  getProfile(@Req() req: Request) {
+    return req.user;
   }
 }

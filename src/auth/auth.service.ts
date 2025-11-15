@@ -3,26 +3,48 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/modules/users/users.service';
 
+import { LoginDto } from './dto/login.dto';
+import { JwtPayload } from './auth.types';
+import { User } from '../modules/users/entities/user.entity';
+import { WhatsAppConfigService } from '../modules/whatsapp/services/whatsapp-config.service';
+
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private whatsappConfigService: WhatsAppConfigService
   ) { }
 
-  async validateUser(username: string, password: string) {
+  async valid(username: string, pass: string): Promise<User> {
     const user = await this.usersService.findByUsername(username);
-    if (user && await bcrypt.compare(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
+    const isValid = user && bcrypt.compareSync(pass, user.password);
+    if (user && isValid) {
+      return user;
     }
-    return null;
+    throw new UnauthorizedException('Invalid credentials');
   }
 
-  async login(user: any) {
-    const payload = { sub: user.id, username: user.username, role: user.role };
-    return {
-      access_token: this.jwtService.sign(payload),
+  async sign(dto: LoginDto) {
+    const user: User = await this.valid(dto.username, dto.password);
+    console.log(user);
+    const config = await this.whatsappConfigService.getActiveByCompany(user.company.id);
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+      companyId: user.company?.id || '',
+      businessId: config?.businessId || '',
     };
+
+    const access_token = await this.jwtService.signAsync(payload);
+
+    return { payload, access_token };
+  }
+
+  refresh() {
+    // TODO: implement refresh token logic
+    return { message: 'Not implemented' }
   }
 }

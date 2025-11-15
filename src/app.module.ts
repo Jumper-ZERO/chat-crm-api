@@ -1,60 +1,67 @@
+import { BullModule } from '@nestjs/bullmq';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './modules/users/users.module';
+
+import { I18nModule } from 'nestjs-i18n';
 import { LoggerModule } from 'nestjs-pino';
-import { ClientsModule } from './modules/clients/clients.module';
-import { ChatsModule } from './modules/chats/chats.module';
+
+// Configurations
+import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
+import { bullmqConfig } from './config/bullmq.config';
+import { cacheConfig } from './config/cache.config';
+import { databaseConfig } from './config/database.config';
+import { i18nConfig } from './config/i18n.config';
+import { loggerConfig } from './config/logger.config';
+
+// Controllers & Services
+import { AppController } from './app.controller';
+
+import { AppService } from './app.service';
+
+// Utils
+import { IsUniqueConstraint } from './utils/validators';
+
+// Modules
 import { AuthModule } from './auth/auth.module';
-import { AcceptLanguageResolver, I18nModule, I18nYamlLoader, QueryResolver } from 'nestjs-i18n';
-import * as path from 'path';
+import { ChatsModule } from './modules/chats/chats.module';
+import { CompaniesModule } from './modules/companies/companies.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { UsersModule } from './modules/users/users.module';
+import { WhatsappModule } from './modules/whatsapp/whatsapp.module';
+import { MetricsModule } from './modules/metrics/metrics.module';
 
 @Module({
   imports: [
-    I18nModule.forRoot({
-      fallbackLanguage: 'es',
-      loader: I18nYamlLoader,
-      loaderOptions: {
-        path: path.join(__dirname, '../locales/'),
-        watch: true,
-      },
-      resolvers: [
-        { use: QueryResolver, options: ['lang'] },
-        AcceptLanguageResolver,
-      ],
-    }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        transport: {
-          target: 'pino-pretty',
-          options: {
-            singleLine: true,
-            colorize: true,
-            translateTime: 'dd/mm/yyyy, h:MM:ss TT',
-            levelFirst: false,
-            messageFormat: '[Chat Crm] {level} [{context}] {msg}',
-          },
-        },
-      },
-    }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || '3306', 10),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      entities: [__dirname + '/modules/**/*.entity{.ts,.js}'],
-      migrations: [__dirname + '/migrations/*.ts'],
-      synchronize: true, // This only in development, not recommended for production
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
+    I18nModule.forRoot(i18nConfig),
+    LoggerModule.forRoot(loggerConfig),
+    TypeOrmModule.forRoot(databaseConfig),
+    CacheModule.registerAsync(cacheConfig),
+    BullModule.forRoot(bullmqConfig),
     UsersModule,
-    ClientsModule,
     ChatsModule,
     AuthModule,
+    WhatsappModule,
+    ContactsModule,
+    CompaniesModule,
+    NotificationsModule,
+    MetricsModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, IsUniqueConstraint,
+    {
+      provide: APP_PIPE,
+      useClass: ZodValidationPipe
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ZodSerializerInterceptor
+    }
+  ],
 })
+
 export class AppModule { }
