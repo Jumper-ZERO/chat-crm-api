@@ -1,8 +1,4 @@
-## 0.1.0 (2025-11-16)
-
-### Fix
-
-- :bug: Fix commitizen file
+## 1.0.0-beta.0 (2025-11-16)
 
 ## 0.1.0 (2025-11-16)
 
@@ -68,6 +64,7 @@
 
 ### Fix
 
+- :bug: Fix commitizen file
 - :bug: Add version in .cz.toml file
 - Fix version in package.json
 - :bug: Remove metrics log for range week
