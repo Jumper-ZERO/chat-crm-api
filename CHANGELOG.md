@@ -1,85 +1,97 @@
-# Changelog
+## 0.1.0 (2025-11-16)
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+### Fix
 
-### 0.0.2-beta.0 (2025-11-15)
+- :bug: Fix commitizen file
 
+## 0.1.0 (2025-11-16)
 
-### Features
+### Feat
 
-* :boom: Changes attributes in entities from chat module ([2ca26cf](https://github.com/Jumper-ZERO/chat-crm-api/commit/2ca26cf5c04fca550453a24fa57665707c4056bf))
-* :card_file_box: Add firstNames, lastnames and username attributes at contact entity ([d7b4729](https://github.com/Jumper-ZERO/chat-crm-api/commit/d7b4729d8b933f689d6e9484c9064b831c560c18))
-* :card_file_box: Add notification entity and his controller ([f78ea16](https://github.com/Jumper-ZERO/chat-crm-api/commit/f78ea162a2bb63723de41e9f0f48c992397b9b86))
-* :construction: Add save messages from whatsapp api in database ([e50e0b9](https://github.com/Jumper-ZERO/chat-crm-api/commit/e50e0b9a9e1a33678e3e6a26ce550248df313ed6))
-* :construction: Adding contact info in new message recived for whatsapp api ([04f3e93](https://github.com/Jumper-ZERO/chat-crm-api/commit/04f3e934a260e9d4be4e4a5a1f932ea046b3b6fb))
-* :fire: Delete duplicate methods ([511601d](https://github.com/Jumper-ZERO/chat-crm-api/commit/511601d3ebc398224234df1006bc675bc4f85d74))
-* :heavy_plus_sign: Add data-sns for dates in selecting data for kpis metrics ([5869166](https://github.com/Jumper-ZERO/chat-crm-api/commit/5869166381d5a2e3bca6721166fe09d303f27fc7))
-* :heavy_plus_sign: Add whatsapp types ([dece75e](https://github.com/Jumper-ZERO/chat-crm-api/commit/dece75e2199186a0cf5c860c16f6d2bf2b4054ef))
-* :passport_control: Add routes and fix minors ([108c61b](https://github.com/Jumper-ZERO/chat-crm-api/commit/108c61ba769304cdb6c63ff53b3d0500ad87f929))
-* :poop: Add basic socket comunication and send api ([0a131a6](https://github.com/Jumper-ZERO/chat-crm-api/commit/0a131a632ed01acfced0e83151e2cdd92188cb84))
-* :poop: Add simple connection with chat and contact entity for recived messages from whatsapp ([c345195](https://github.com/Jumper-ZERO/chat-crm-api/commit/c345195d8c0bbaadafb49af0c7ead0ffedbf1564))
-* :recycle: Refactor update method for id to businessId ([fe88fc8](https://github.com/Jumper-ZERO/chat-crm-api/commit/fe88fc8289c8da9ef6b49c18f2497427cade44c5))
-* :recycle: Reorder import fix ([8f30941](https://github.com/Jumper-ZERO/chat-crm-api/commit/8f30941dc89d0ec750b28686801a75345c2b790f))
-* :safety_vest: Add validation jwt + cookie implementation ([18888cc](https://github.com/Jumper-ZERO/chat-crm-api/commit/18888cc1891b311a2aefff0d53098a9d60fcbb3b))
-* :sparkles: Add assigned user ([87b0af0](https://github.com/Jumper-ZERO/chat-crm-api/commit/87b0af0caeee33e40bc7e449b6f77a8b36726e38))
-* :sparkles: Add best agents for metrics ([d928eac](https://github.com/Jumper-ZERO/chat-crm-api/commit/d928eac63342f46eda8bae0fe6487e919a15aaa4))
-* :sparkles: Add businessId to claims for jwt token ([8416d02](https://github.com/Jumper-ZERO/chat-crm-api/commit/8416d025e5a108b4eb4d9bafbbcedba5b4fe5102))
-* :sparkles: Add client api feature and exception handler ([2fc6d37](https://github.com/Jumper-ZERO/chat-crm-api/commit/2fc6d37f93182ac26a5e407de21442264d791311))
-* :sparkles: Add client, exception filter, send message dto, types, interfaces ans custom exceptions ([22ddd52](https://github.com/Jumper-ZERO/chat-crm-api/commit/22ddd522813444fc35ab8d97252d45fd44b961b3))
-* :sparkles: Add contact crud methods for table ([0d70c9f](https://github.com/Jumper-ZERO/chat-crm-api/commit/0d70c9f5dcdeb2e48b8ffe93fbd9be7462275981))
-* :sparkles: Add contact table and modify user entity ([10a9bd4](https://github.com/Jumper-ZERO/chat-crm-api/commit/10a9bd4f4706dff298668981e4bfa2d0aecad9e0))
-* :sparkles: Add datetimes filter for sentiment metrics ([d6ffc72](https://github.com/Jumper-ZERO/chat-crm-api/commit/d6ffc721c0706fd5b80d14c67f7c60bb5e4017b4))
-* :sparkles: Add extractor for statuses and messages from whatsapp api ([525b75b](https://github.com/Jumper-ZERO/chat-crm-api/commit/525b75bb5ad3373530149ac24af0e472f351ebee))
-* :sparkles: Add filter chats list for user autenticated ([19ebf8a](https://github.com/Jumper-ZERO/chat-crm-api/commit/19ebf8aae001f0f873e0fd33695faa2cd02aae37))
-* :sparkles: Add handle error message fro whatsapp ([aeac70b](https://github.com/Jumper-ZERO/chat-crm-api/commit/aeac70b3c3b1a818e3718f2f26328adb7ca48ee0))
-* :sparkles: Add handler status manager in socket gateway for users ([f7e6b87](https://github.com/Jumper-ZERO/chat-crm-api/commit/f7e6b87983134733c2cadafc4cd96c675c0e6b98))
-* :sparkles: Add join-chat event for join socket room ([cae75fa](https://github.com/Jumper-ZERO/chat-crm-api/commit/cae75fa5dc1657fa3a8799c9baa6021897c4a609))
-* :sparkles: Add Kpis for month metrics and modules imports ([d99d2ee](https://github.com/Jumper-ZERO/chat-crm-api/commit/d99d2eef88dc25198a289d870e7964dabe8156ba))
-* :sparkles: Add kpis metrics ([348e6da](https://github.com/Jumper-ZERO/chat-crm-api/commit/348e6dadd4fe5f8cc7d8e31dd4e29236d2c43b95))
-* :sparkles: Add MessagesController ([f3dd110](https://github.com/Jumper-ZERO/chat-crm-api/commit/f3dd110f84515797c25ac055876be353fda0af19))
-* :sparkles: Add methods for whatsapp config ([67e1f25](https://github.com/Jumper-ZERO/chat-crm-api/commit/67e1f257b5f17d3e10080b07b04db6edde505d86))
-* :sparkles: Add metrics for best agent for sentiments in chats ([451d52e](https://github.com/Jumper-ZERO/chat-crm-api/commit/451d52ef8a951e501eaf3fdbee95e2d7e0cebda6))
-* :sparkles: Add pagination with nestjs-typeorm-paginate package ([b7be63a](https://github.com/Jumper-ZERO/chat-crm-api/commit/b7be63a29513df323e46e7807b56562666f47762))
-* :sparkles: Add porcent last month with metrics ([8ace9c7](https://github.com/Jumper-ZERO/chat-crm-api/commit/8ace9c748cca06d414d08d86ffdf646dd2fe4123))
-* :sparkles: Add query for user for chat view ([f22d18d](https://github.com/Jumper-ZERO/chat-crm-api/commit/f22d18d9e14fbf6134216094beb3b5981c3747fa))
-* :sparkles: Add redis config and refactor modules ([847293c](https://github.com/Jumper-ZERO/chat-crm-api/commit/847293c10df9d97fe353817b53b51a35e321e870))
-* :sparkles: Add relations ids in messages ([85d55af](https://github.com/Jumper-ZERO/chat-crm-api/commit/85d55af1ece0ad12207c3742bfb2531523c805bd))
-* :sparkles: Add search for contact ([f8062b5](https://github.com/Jumper-ZERO/chat-crm-api/commit/f8062b5a46f22b006cbe4bb5c40257473474979c))
-* :sparkles: Add search user for combobox UI ([9610ddd](https://github.com/Jumper-ZERO/chat-crm-api/commit/9610ddd01dc0382622d946d2dd56c47f6555a1e7))
-* :sparkles: Add search user for select input in frontend ([76cb5ea](https://github.com/Jumper-ZERO/chat-crm-api/commit/76cb5ea3c23910c318d32b5324091eff07bcd7f3))
-* :sparkles: Add send-message event for send messages to whatsapp ([c56f9ba](https://github.com/Jumper-ZERO/chat-crm-api/commit/c56f9ba2a7b2f25c91b7b60dc739cebb91e22c55))
-* :sparkles: Add sentiment analysis and transfer register for agent ([29d5780](https://github.com/Jumper-ZERO/chat-crm-api/commit/29d57800ee4e5b37ae793aca5fefb94e799b4c7a))
-* :sparkles: Add sentiment analysis for realtime with gateway ([633cb69](https://github.com/Jumper-ZERO/chat-crm-api/commit/633cb69fc985e5d2b6254ffb0de53aaa9750710e))
-* :sparkles: Add sort filter in contact table ([5153694](https://github.com/Jumper-ZERO/chat-crm-api/commit/51536948f36fd1a23e728942b0847a57f6640d64))
-* :sparkles: Add status for chat default in pending ([f30615d](https://github.com/Jumper-ZERO/chat-crm-api/commit/f30615d2e33988f4683d57a31886108c47ebbda0))
-* :sparkles: Add subscriber for whatsapp config entity ([20a82ff](https://github.com/Jumper-ZERO/chat-crm-api/commit/20a82ff28dd2d4ded3f805d5a646142bfbb39484))
-* :sparkles: Add support for companies entity ([12a245c](https://github.com/Jumper-ZERO/chat-crm-api/commit/12a245c7270f97add870f831cb189e71f324efa2))
-* :sparkles: Add table data funcionality ([0ef0c68](https://github.com/Jumper-ZERO/chat-crm-api/commit/0ef0c68fabf8d65f7b4db7d086fa1e30f6bdfd60))
-* :sparkles: Add testing feature ([6aa3296](https://github.com/Jumper-ZERO/chat-crm-api/commit/6aa329681579431104bdc10e7f2fcefc5a90f25b))
-* :sparkles: Add update and attributes for user entity ([892c325](https://github.com/Jumper-ZERO/chat-crm-api/commit/892c32594d027d762b14f62a5fa6a45bc072c82c))
-* :sparkles: Add whatsapp config module ([34209d4](https://github.com/Jumper-ZERO/chat-crm-api/commit/34209d4ee7f11716c8a749f8871cbfd95296d16a))
-* :sparkles: Add zod validation with nestjs-zod dependencie ([2782f47](https://github.com/Jumper-ZERO/chat-crm-api/commit/2782f476518faec1eebcb77c7f6a5767b92d9028))
-* :sparkles: Change validations for verify access token in whatsapp webhook ([b5efbf5](https://github.com/Jumper-ZERO/chat-crm-api/commit/b5efbf592a006cc8f2e1e0283cb2cab1dfc73cf9))
-* :sparkles: Configuration base ([4a3835b](https://github.com/Jumper-ZERO/chat-crm-api/commit/4a3835bbdef32849f0d9459595614019d0b5fdf5))
-* :sparkles: Modificated contact entity customerStatus changed to status attribute ([a3aad9a](https://github.com/Jumper-ZERO/chat-crm-api/commit/a3aad9aadf2946d7a30a9e0e85d98995d2f5d9f7))
-* :sparkles: Support to data table components ([7280946](https://github.com/Jumper-ZERO/chat-crm-api/commit/7280946967ce905838ac721c8da397ff0e1a7b23))
-* :zap: Add filter params helper and generals ([4ab1703](https://github.com/Jumper-ZERO/chat-crm-api/commit/4ab17038bedf85a478a01045cb79c525658c27ab))
+- :sparkles: Add sentiment analysis for realtime with gateway
+- :sparkles: Add metrics for best agent for sentiments in chats
+- :sparkles: Add best agents for metrics
+- :sparkles: Add datetimes filter for sentiment metrics
+- :sparkles: Add Kpis for month metrics and modules imports
+- :sparkles: Add porcent last month with metrics
+- :sparkles: Add kpis metrics
+- :heavy_plus_sign: Add data-sns for dates in selecting data for kpis metrics
+- :sparkles: Add sentiment analysis and transfer register for agent
+- :card_file_box: Add notification entity and his controller
+- :sparkles: Add query for user for chat view
+- :sparkles: Add status for chat default in pending
+- :sparkles: Add assigned user
+- :sparkles: Add relations ids in messages
+- :sparkles: Add handler status manager in socket gateway for users
+- :sparkles: Add filter chats list for user autenticated
+- :sparkles: Add handle error message fro whatsapp
+- :fire: Delete duplicate methods
+- :sparkles: Add join-chat event for join socket room
+- :sparkles: Add send-message event for send messages to whatsapp
+- :construction: Adding contact info in new message recived for whatsapp api
+- :sparkles: Add search for contact
+- :sparkles: Add MessagesController
+- :card_file_box: Add firstNames, lastnames and username attributes at contact entity
+- :construction: Add save messages from whatsapp api in database
+- :sparkles: Add zod validation with nestjs-zod dependencie
+- :poop: Add simple connection with chat and contact entity for recived messages from whatsapp
+- :boom: Changes attributes in entities from chat module
+- :sparkles: Add update and attributes for user entity
+- :sparkles: Add table data funcionality
+- :sparkles: Add contact crud methods for table
+- :sparkles: Add search user for combobox UI
+- :sparkles: Support to data table components
+- :sparkles: Add search user for select input in frontend
+- :zap: Add filter params helper and generals
+- :sparkles: Change validations for verify access token in whatsapp webhook
+- :recycle: Reorder import fix
+- :sparkles: Modificated contact entity customerStatus changed to status attribute
+- :sparkles: Add support for companies entity
+- :sparkles: Add sort filter in contact table
+- :sparkles: Add pagination with nestjs-typeorm-paginate package
+- :sparkles: Add contact table and modify user entity
+- :sparkles: Add client, exception filter, send message dto, types, interfaces ans custom exceptions
+- :sparkles: Add client api feature and exception handler
+- :sparkles: Add testing feature
+- :sparkles: Add extractor for statuses and messages from whatsapp api
+- :recycle: Refactor update method for id to businessId
+- :sparkles: Add methods for whatsapp config
+- :heavy_plus_sign: Add whatsapp types
+- :sparkles: Add businessId to claims for jwt token
+- :sparkles: Add subscriber for whatsapp config entity
+- :sparkles: Add whatsapp config module
+- :sparkles: Add redis config and refactor modules
+- :poop: Add basic socket comunication and send api
+- :passport_control: Add routes and fix minors
+- :safety_vest: Add validation jwt + cookie implementation
+- :sparkles: Configuration base
 
+### Fix
 
-### Bug Fixes
+- :bug: Add version in .cz.toml file
+- Fix version in package.json
+- :bug: Remove metrics log for range week
+- :card_file_box: Change username to name for contact schema
+- :ambulance: Save relations for user/agent and client in message
+- :bug: Fix the export metrics services in module
+- :bug: Change the createAt column to createdAt for sentiment entity
+- :card_file_box: Change null last message relation for chat
+- :bug: Fix agent relations in recived message to whatsapp webhook
+- :bug: Fix direction in emmiting message
+- :bug: Fix 'mediaUrl' change to optinal
+- :bug: Fix change enum to type
+- :ambulance: Fix update for whatsapp config assign null to companyId
+- :technologist: Drop filter exception temporality for watch i18nValidations
+- :bug: Fix data long for accessToken
+- :fire: Drop duplicate code
+- :bug: Drop Logs Files
 
-* :ambulance: Fix update for whatsapp config assign null to companyId ([c8b493f](https://github.com/Jumper-ZERO/chat-crm-api/commit/c8b493f63094fd9ba3c4bfbd662bf4fdde6b3a97))
-* :ambulance: Save relations for user/agent and client in message ([1560a05](https://github.com/Jumper-ZERO/chat-crm-api/commit/1560a0571bd3827e004d5ff506efe97694ae120e))
-* :bug: Change the createAt column to createdAt for sentiment entity ([076a042](https://github.com/Jumper-ZERO/chat-crm-api/commit/076a042e3f5c381eb0ca4b45f1636da03218e3e1))
-* :bug: Drop Logs Files ([2b8ead6](https://github.com/Jumper-ZERO/chat-crm-api/commit/2b8ead62f8e9eedb22142aa8699c54ff070a7e77))
-* :bug: Fix 'mediaUrl' change to optinal ([320253a](https://github.com/Jumper-ZERO/chat-crm-api/commit/320253a7e8d66e2b9a3596e7cb87d206c9f68469))
-* :bug: Fix agent relations in recived message to whatsapp webhook ([82124b4](https://github.com/Jumper-ZERO/chat-crm-api/commit/82124b468700cdf8e58107db3e7ecc1a51390eb4))
-* :bug: Fix change enum to type ([8ec3213](https://github.com/Jumper-ZERO/chat-crm-api/commit/8ec3213f1838434472c6030fca127f32e51522e4))
-* :bug: Fix data long for accessToken ([ddafafd](https://github.com/Jumper-ZERO/chat-crm-api/commit/ddafafdc873a84e14a2d439dc44203f64b3ded8f))
-* :bug: Fix direction in emmiting message ([b8bf928](https://github.com/Jumper-ZERO/chat-crm-api/commit/b8bf9285c60dd185eabc7f7ed04b5cb30cd41754))
-* :bug: Fix the export metrics services in module ([9b16f02](https://github.com/Jumper-ZERO/chat-crm-api/commit/9b16f028f6d5edc3215ef8a5781c7757d3222294))
-* :bug: Remove metrics log for range week ([3c8db0c](https://github.com/Jumper-ZERO/chat-crm-api/commit/3c8db0cfb1bc448bcf3cedf8655fb5ec3985062d))
-* :card_file_box: Change null last message relation for chat ([b9b6376](https://github.com/Jumper-ZERO/chat-crm-api/commit/b9b6376887a49b1eccef8a459d9f277c955e02af))
-* :card_file_box: Change username to name for contact schema ([c105516](https://github.com/Jumper-ZERO/chat-crm-api/commit/c105516dab025a8a803447ffc7b0702512b108d2))
-* :fire: Drop duplicate code ([e88534f](https://github.com/Jumper-ZERO/chat-crm-api/commit/e88534f14bb216e9053a3f77b49eec4ae62500cf))
-* :technologist: Drop filter exception temporality for watch i18nValidations ([664771f](https://github.com/Jumper-ZERO/chat-crm-api/commit/664771f14beabebe541471a316d214a5263456df))
+### Refactor
+
+- :bulb: Remove range log in metrics controller
+- :recycle: Drop innecesary repos
+- :fire: Drop redundante code in chat controller and service
+- :recycle: Move file in controller folder for chat module
+- :fire: Remove testing files
+- :bricks: Change enum to type in UserRole
+- :bulb: Drop commented code
