@@ -89,9 +89,10 @@ export class ChatsService {
     return await this.chatRepo.save(chat);
   }
 
-  async getChats(userID?: string) {
+  async getChats(userID?: string, role?: string) {
+    this.logger.debug(`Fetching chats for userID: ${userID} with role: ${role}`);
     const chats = await this.chatRepo.find({
-      where: userID ? { assignedAgent: { id: userID } } : {},
+      where: (userID && role !== 'admin') ? { assignedAgent: { id: userID } } : {},
       relations: {
         contact: true,
         lastMessage: true,

@@ -18,7 +18,7 @@ export class ChatsController {
   @Get('/list')
   findAll(@Req() req: Request) {
     const auth = req.user as JwtPayload;
-    return this.service.getChats(auth.sub);
+    return this.service.getChats(auth.sub, auth.role);
   }
 
   @Get(':id/messages')
