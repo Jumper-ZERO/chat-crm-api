@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { User } from 'src/modules/users/entities/user.entity';
-import { FindManyOptions, In, Like, Not, Repository } from 'typeorm';
+import { FindManyOptions, In, IsNull, Like, Not, Repository } from 'typeorm';
 import { UpdateResult } from 'typeorm/browser';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -37,7 +37,7 @@ export class UsersService {
     const { findOptions, paginationOptions } = buildQueryOptions<User>(query);
 
     const defaultFindOptions: FindManyOptions<User> = {
-      where: { isDeleted: false },
+      where: { deletedAt: IsNull() },
       order: { status: 'DESC', updatedAt: 'DESC' },
     };
 
@@ -155,6 +155,6 @@ export class UsersService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.repo.delete(id);
+    await this.repo.softDelete({ id });
   }
 }
