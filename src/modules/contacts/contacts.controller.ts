@@ -16,6 +16,7 @@ export class ContactsController {
   @Post('table')
   @UsePipes(new ZodValidationPipe(contactTableQuerySchema))
   getTable(@Body() query: ContactTableQueryDto) {
+    console.log(query)
     return this.contactService.findPaginated(query);
   }
 
