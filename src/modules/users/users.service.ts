@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PinoLogger } from 'nestjs-pino';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { User } from 'src/modules/users/entities/user.entity';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Not, Repository } from 'typeorm';
 import { UpdateResult } from 'typeorm/browser';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -19,6 +20,7 @@ export class UsersService {
     private readonly repo: Repository<User>,
     @InjectRepository(Chat)
     private readonly chatRepo: Repository<Chat>,
+    private readonly logger: PinoLogger,
   ) { }
 
   async online(id: string) {
@@ -101,11 +103,17 @@ export class UsersService {
   }
 
   async findAvailableAgent(companyId: string): Promise<User> {
+    const roles = ['system', 'admin'];
+
     const agents = await this.repo.find({
       where: {
         company: { id: companyId },
-        role: 'agent',
+        role: Not(In(roles)),
         status: 'online',
+      },
+      order: {
+        status: 'DESC',
+        username: 'ASC'
       },
       relations: ['company'],
     });
@@ -126,6 +134,7 @@ export class UsersService {
     agentsWithLoad.sort((a, b) => a.activeChats - b.activeChats);
     const bestAgent = agentsWithLoad[0].agent;
 
+    this.logger.debug(`Selected agent ${bestAgent.username}`);
     return bestAgent;
   }
 

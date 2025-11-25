@@ -69,17 +69,22 @@ export class WhatsAppConfigService {
     return config;
   }
 
-  async updateByBusinessId(businessId: string, dto: UpdateWhatsAppConfigDto): Promise<WhatsAppConfig | null> {
-    const config = await this.configRepository.findOne({
+  async updateByBusinessId(
+    businessId: string,
+    dto: UpdateWhatsAppConfigDto
+  ): Promise<WhatsAppConfig> {
+    const { companyId, ...data } = dto;
+
+    let config = await this.configRepository.findOne({
       where: { businessId },
       relations: ['company'],
     });
 
-    if (!config) throw new WhatsAppConfigNotFoundException();
+    if (!config) {
+      config = this.configRepository.create({ businessId });
+    }
 
-    const { companyId, ...configDto } = dto;
-
-    Object.assign(config, configDto);
+    this.configRepository.merge(config, data);
 
     if (companyId) {
       config.company = { id: companyId } as Company;

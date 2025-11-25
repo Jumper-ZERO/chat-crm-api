@@ -4,14 +4,20 @@ import { Repository } from "typeorm";
 import { Message } from "../../chats/entities";
 import { SentimentClient } from "../clients/sentiment.client";
 import { SentimentAnalysis } from "../entities/sentiment-analysis.entity";
+import { SentimentGateway } from "../gateways/sentiment.gateway";
 
 @Injectable()
 export class SentimentService {
   constructor(
     @InjectRepository(SentimentAnalysis)
     private readonly repo: Repository<SentimentAnalysis>,
+    private readonly gateway: SentimentGateway,
     private readonly client: SentimentClient,
   ) { }
+
+  emitGlobalSentiment(chatId: string, data: any) {
+    this.gateway.emitGlobalSentiment(chatId, data);
+  }
 
   async save(message: Message) {
     const { probabilities, label } = await this.client.analyze(message.body);
