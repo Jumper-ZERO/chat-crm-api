@@ -70,7 +70,11 @@ import { SentimentGateway } from './gateways/sentiment.gateway';
     SentimentService,
   ],
   exports: [
+    WebhookService,
     WhatsAppConfigService,
+    WhatsappService,
+    WhatsappGateway,
+    WhatsAppConfigSubscriber,
     WhatsAppApiClient,
     BullModule,
     SentimentClient,
