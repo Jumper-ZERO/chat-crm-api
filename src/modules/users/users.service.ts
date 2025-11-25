@@ -32,13 +32,24 @@ export class UsersService {
   }
 
   async table(query: UserTableQueryDto): Promise<Pagination<User>> {
-    const { findOptions, paginationOptions } = buildQueryOptions(query);
+    const { findOptions, paginationOptions } = buildQueryOptions<User>(query);
 
+    const defaultFindOptions: FindManyOptions<User> = {
+      where: { isDeleted: false },
+      order: { status: 'DESC', updatedAt: 'DESC' },
+    };
+
+    const mergedFindOptions: FindManyOptions<User> = {
+      ...defaultFindOptions,
+      ...findOptions,
+      where: { ...defaultFindOptions.where, ...findOptions.where },
+      order: { ...defaultFindOptions.order, ...findOptions.order },
+    };
 
     return paginate<User>(
       this.repo,
       paginationOptions,
-      findOptions
+      mergedFindOptions,
     );
   }
 
