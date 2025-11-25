@@ -31,6 +31,7 @@ export class UsersController {
   @Post('table')
   @UsePipes(new ZodValidationPipe(userTableQuerySchema))
   getTable(@Body() query: UserTableQueryDto) {
+    console.log(query)
     return this.usersService.table(query);
   }
 
