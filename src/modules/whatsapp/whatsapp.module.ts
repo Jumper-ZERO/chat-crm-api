@@ -9,23 +9,23 @@ import { WebhookService } from './services/webhook.service';
 import { WhatsAppConfigService } from './services/whatsapp-config.service';
 import { WhatsappService } from './whatsapp.service';
 import { SentimentAnalysis } from './entities/sentiment-analysis.entity';
+import { SentimentClient } from './clients/sentiment.client';
 import { SentimentController, WhatsAppConfigController, WhatsappController, WhatsappWebhookController } from './controllers';
 import { WhatsAppConfig } from './entities';
 import { WhatsAppMessageFactory } from './factories/whatsapp-message.factory';
+import { SentimentGateway } from './gateways/sentiment.gateway';
+import { SentimentProcessor } from './processors/sentiment.processor';
 import { WhatsAppConfigSubscriber } from './subscribers/whatsapp-config.subscriber';
 import { WhatsAppApiClient } from './whatsapp-api.client';
 import { WhatsappGateway } from './whatsapp.gateway';
+import { ChatsModule } from '../chats/chats.module';
 import { ChatsService } from '../chats/chats.service';
 import { Chat, Message } from '../chats/entities';
-import { ContactsService } from '../contacts/contacts.service';
+import { ContactsModule } from '../contacts/contacts.module';
 import { Contact } from '../contacts/entities/contact.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { User } from '../users/entities/user.entity';
-import { UsersService } from '../users/users.service';
-import { SentimentClient } from './clients/sentiment.client';
-import { SentimentProcessor } from './processors/sentiment.processor';
-import { ChatsModule } from '../chats/chats.module';
-import { SentimentGateway } from './gateways/sentiment.gateway';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -45,7 +45,9 @@ import { SentimentGateway } from './gateways/sentiment.gateway';
     }),
     HttpModule,
     NotificationsModule,
-    forwardRef(() => ChatsModule)
+    forwardRef(() => ChatsModule),
+    ContactsModule,
+    UsersModule,
   ],
   controllers: [
     WhatsappController,
@@ -62,8 +64,6 @@ import { SentimentGateway } from './gateways/sentiment.gateway';
     WhatsAppApiClient,
     WhatsAppMessageFactory,
     ChatsService,
-    ContactsService,
-    UsersService,
     SentimentClient,
     SentimentProcessor,
     SentimentGateway,
