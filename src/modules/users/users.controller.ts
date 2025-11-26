@@ -7,21 +7,36 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
 
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { type UserSearchDto, userSearchSchema } from './dto/user-search.dto';
+import { JwtPayload } from '../../auth/auth.types';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { userTableQuerySchema, type UserTableQueryDto } from '../../common/schemas/user-table-query.schema';
 
 @Controller('users')
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
+
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    console.log(user);
+    return this.usersService.importCsv(file, user.companyId);
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
@@ -41,7 +56,6 @@ export class UsersController {
     return this.usersService.searchUser(query);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.usersService.findAll();

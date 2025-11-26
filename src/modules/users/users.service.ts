@@ -1,5 +1,8 @@
+import { Readable } from 'stream';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { CsvParser } from 'nest-csv-parser';
 import { PinoLogger } from 'nestjs-pino';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { User } from 'src/modules/users/entities/user.entity';
@@ -21,7 +24,33 @@ export class UsersService {
     @InjectRepository(Chat)
     private readonly chatRepo: Repository<Chat>,
     private readonly logger: PinoLogger,
+    private readonly csv: CsvParser,
   ) { }
+
+  async importCsv(file: Express.Multer.File, companyId: string): Promise<{ count: number }> {
+    const stream = Readable.from(file.buffer);
+    const parsed = await this.csv.parse(stream, CreateUserDto, undefined, undefined, {
+      strict: true,
+      separator: ',',
+    });
+
+    const users = await Promise.all(
+      parsed.list.map(async (row: Partial<User>) => ({
+        username: row.username,
+        firstNames: row.firstNames,
+        lastNames: row.lastNames,
+        phoneNumber: row.phoneNumber,
+        email: row.email,
+        password: await bcrypt.hash(row.password ?? 'password', 10),
+        role: row.role ?? 'agent',
+        company: { id: companyId },
+      }))
+    );
+
+    await this.repo.insert(users);
+
+    return { count: users.length };
+  }
 
   async online(id: string) {
     const result = await this.repo.update({ id }, { status: 'online' })
@@ -151,7 +180,12 @@ export class UsersService {
   }
 
   update(id: string, dto: UpdateUserDto): Promise<UpdateResult> {
-    return this.repo.update(id, { ...dto, company: { id: dto.companyId } })
+    return this.repo.update(id,
+      {
+        ...dto,
+        password: bcrypt.hashSync(dto.password ?? 'password', 10),
+      }
+    )
   }
 
   async remove(id: string): Promise<void> {
