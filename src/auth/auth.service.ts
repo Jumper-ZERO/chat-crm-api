@@ -34,6 +34,8 @@ export class AuthService {
       sub: user.id,
       username: user.username,
       role: user.role,
+      avatar: user?.avatar,
+      email: user?.email,
       companyId: user.company?.id || '',
       businessId: config?.businessId || '',
     };
