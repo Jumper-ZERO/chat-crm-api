@@ -1,11 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto, UpdateContactDto } from './dto/contact.dto';
+import { JwtPayload } from '../../auth/auth.types';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { type ContactTableQueryDto, contactTableQuerySchema } from '../../common/schemas/contact-table-query.schema';
 
 @Controller('contacts')
+@UseGuards(AuthGuard('jwt'))
 export class ContactsController {
   constructor(private readonly contactService: ContactsService) { }
 
@@ -16,8 +20,9 @@ export class ContactsController {
 
   @Post('import')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    return this.contactService.importCsv(file);
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
+    const user = req.user as JwtPayload;
+    return this.contactService.importCsv(file, user.companyId);
   }
 
   @Post('table')

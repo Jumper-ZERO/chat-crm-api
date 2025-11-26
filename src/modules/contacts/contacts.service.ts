@@ -22,7 +22,7 @@ export class ContactsService {
     private readonly csv: CsvParser,
   ) { }
 
-  async importCsv(file: Express.Multer.File): Promise<{ count: number }> {
+  async importCsv(file: Express.Multer.File, companyId: string): Promise<{ count: number }> {
     const stream = Readable.from(file.buffer);
     const parsed = await this.csv.parse(stream, CreateContactDto, undefined, undefined, {
       strict: true,
@@ -32,6 +32,8 @@ export class ContactsService {
     const contacts = parsed.list.map((row: Partial<Contact>) => ({
       username: row.username,
       phoneNumber: row.phoneNumber,
+      waId: row.phoneNumber,
+      company: { id: companyId }
     }));
 
     await this.contactRepo.insert(contacts);
