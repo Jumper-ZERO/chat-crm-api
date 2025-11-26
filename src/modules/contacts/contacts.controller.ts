@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ContactsService } from './contacts.service';
 import { CreateContactDto, UpdateContactDto } from './dto/contact.dto';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
@@ -13,6 +14,12 @@ export class ContactsController {
     return this.contactService.create(createContactDto);
   }
 
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    return this.contactService.importCsv(file);
+  }
+
   @Post('table')
   @UsePipes(new ZodValidationPipe(contactTableQuerySchema))
   getTable(@Body() query: ContactTableQueryDto) {
@@ -20,7 +27,7 @@ export class ContactsController {
     return this.contactService.findPaginated(query);
   }
 
-  @Get('/search')
+  @Get('search')
   search(@Query('q') q: string) {
     return this.contactService.search(q);
   }

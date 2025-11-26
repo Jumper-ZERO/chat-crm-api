@@ -1,6 +1,8 @@
+import { Readable } from 'stream';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { WhatsappNotificationContact } from '@daweto/whatsapp-api-types';
+import { CsvParser } from 'nest-csv-parser';
 import {
   paginate,
   Pagination,
@@ -17,7 +19,25 @@ export class ContactsService {
   constructor(
     @InjectRepository(Contact)
     private readonly contactRepo: Repository<Contact>,
+    private readonly csv: CsvParser,
   ) { }
+
+  async importCsv(file: Express.Multer.File): Promise<{ count: number }> {
+    const stream = Readable.from(file.buffer);
+    const parsed = await this.csv.parse(stream, CreateContactDto, undefined, undefined, {
+      strict: true,
+      separator: ',',
+    });
+
+    const contacts = parsed.list.map((row: Partial<Contact>) => ({
+      username: row.username,
+      phoneNumber: row.phoneNumber,
+    }));
+
+    await this.contactRepo.insert(contacts);
+
+    return { count: contacts.length };
+  }
 
   async table(query: ContactQueryDto): Promise<Pagination<Contact>> {
     const { findOptions, paginationOptions } = buildQueryOptions<Contact>(query);
